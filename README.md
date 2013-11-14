@@ -161,7 +161,10 @@ form.build_phone_number(:phone => Phone.new) # The singularized version is alias
 
 You can specify the default initializers for that form with the accessor `#{nested_form_name}_form_initializer`.
 ```ruby
-form = UserForm.new(:user => User.new, :phone_numbers_form_initializer => {:phone => Phone.new})
+form = UserForm.new(
+  :user => User.new, 
+  :phone_numbers_form_initializer => {:phone => Phone.new} )
+
 form.build_phone_numbers
 form.build_phone_number
 ```
