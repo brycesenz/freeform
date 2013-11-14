@@ -34,8 +34,12 @@ module FreeForm
       end
 
       def property(attribute, options={})
-        def_delegator options[:on], attribute
-        def_delegator options[:on], "#{attribute}=".to_sym
+        if options[:on]
+          def_delegator options[:on], attribute
+          def_delegator options[:on], "#{attribute}=".to_sym
+        else
+          attr_accessor attribute
+        end
         @ignored_blank_params ||= []
         @ignored_blank_params << attribute if options[:ignore_blank]
       end

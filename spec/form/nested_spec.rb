@@ -16,10 +16,6 @@ describe FreeForm::Nested do
             property :street, :on => :address
           end
           
-          def mailing_address_form_initializer
-            {:address => OpenStruct.new}
-          end
-          
           def initialize(h={})
             h.each {|k,v| send("#{k}=",v)}
           end  
@@ -32,14 +28,7 @@ describe FreeForm::Nested do
       end
   
       let(:form) do
-        form_class.new
-#        form_class.new(:build_mailing_address_form => {  })
-=begin
-        form_class.new(
-          :customer => Customer.new,
-          :user_account => UserAccount.new
-          :addresses_form_initializer => {:address => }) 
-=end
+        form_class.new( :mailing_address_form_initializer => { :address => OpenStruct.new } )
       end
 
       describe "form class" do
@@ -53,11 +42,16 @@ describe FreeForm::Nested do
           form.mailing_addresses.should eq([])
         end
         
-        it "allows new models to be built" do
+        it "allows nested_forms to be built" do
           form.build_mailing_address
           form.mailing_addresses.should be_an(Array)
           form.mailing_addresses.should_not be_empty
           form.mailing_addresses.first.should be_a(Module::DummyForm::MailingAddressesForm)
+        end
+
+        it "allows nested_forms to be built with custom initializers" do
+          form.build_mailing_address(:address => OpenStruct.new(:street => "1600 Pennsylvania Ave."))
+          form.mailing_addresses.first.street.should eq("1600 Pennsylvania Ave.")
         end
 
         it "reflects on association" do
