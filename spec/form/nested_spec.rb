@@ -43,7 +43,7 @@ describe FreeForm::Nested do
         end
         
         it "allows nested_forms to be built" do
-          form.build_mailing_address
+          form.build_mailing_addresses
           form.mailing_addresses.should be_an(Array)
           form.mailing_addresses.should_not be_empty
           form.mailing_addresses.first.should be_a(Module::DummyForm::MailingAddressesForm)

@@ -58,13 +58,13 @@ module FreeForm
         alias_method :"#{singularized_attribute}_form_initializer", :"#{attribute}_form_initializer"
         alias_method :"#{singularized_attribute}_form_initializer=", :"#{attribute}_form_initializer="
 
-        # Example: form.build_address (optional custom initializer)
-        define_method(:"build_#{singularized_attribute}") do |initializer=nil|
+        # Example: form.build_addresses (optional custom initializer)
+        define_method(:"build_#{attribute}") do |initializer=nil|
           # Get correct class
           form_class = self.class.nested_forms[:"#{attribute}"]
           
           # Set default intializer if none provided
-          initializer ||= send("#{singularized_attribute}_form_initializer")
+          initializer ||= send("#{attribute}_form_initializer")
 
           # Build new model
           form_model = form_class.new(initializer)
@@ -72,6 +72,7 @@ module FreeForm
           @nested_attributes << form_model
           form_model
         end
+        alias_method :"build_#{singularized_attribute}", :"build_#{attribute}"
       end
 
       # Defining Helper Methods For Nested Attributes
@@ -102,7 +103,7 @@ module FreeForm
 
       # Make up the difference by building new nested form models
       additional_models_needed.times do
-        send("build_#{attribute.to_s.singularize}")
+        send("build_#{attribute.to_s}")
       end
     end
   end

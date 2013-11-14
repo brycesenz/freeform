@@ -150,12 +150,76 @@ class UserForm < FreeForm::Form
   end
 end
 ```
+**Note:**  The method `nested_form` is also aliased as `has_many` and `has_one`, if you prefer the expressiveness of that syntax.  The functionality is the same in any case.
+
+When using a nested form, the form starts with **no** nested forms pre-built.  FreeForm provides a method called `build_#{nested_form_model}` (e.g. `build_phone_numbers`) that you can use to build a nested form.  You must provide the initializer:
+```ruby
+form = UserForm.new(:user => User.new)
+form.build_phone_numbers(:phone => Phone.new)
+form.build_phone_number(:phone => Phone.new) # The singularized version is aliased as well.
+```
+
+You can specify the default initializers for that form with the accessor `#{nested_form_name}_form_initializer`.
+```ruby
+form = UserForm.new(:user => User.new, :phone_numbers_form_initializer => {:phone => Phone.new})
+form.build_phone_numbers
+form.build_phone_number
+```
+This is a necessary parameter if you're using the `nested_form` gem, as new nested forms are initialized automatically.
 
 ## Initialize With Care!
 
+FreeForm's flexibility comes at a bit of a cost - it makes no assumptions about relationships between initialized models or nested forms.  So initializing the form correctly is important.
 
+** For Example **
 
+```ruby
+current_user               # => #<User:0x100124b88>
+current_user.phone_numbers # => [#<Phone:0x100194867>, #<Phone:0x100100cd4>]
 
+class UserForm < FreeForm::Form
+  form_models :user
+
+  property :username,              :on => :user
+  property :email,                 :on => :user
+  
+  nested_form :phone_numbers do
+    form_models :phone
+	
+	property :area_code,              :on => :phone
+	property :number,                 :on => :phone
+  end
+end
+
+form = UserForm.new(:user => current_user)
+```
+
+Think the user's phone numbers will show up as nested forms? **Nope**.  If you want them there, put them there.
+
+```ruby
+current_user.phone_numbers.each do |phone_number|
+  form.build_phone_number(:phone => phone_number)
+end
+```
+
+## Extras!
+
+I'm open to trying to build out little helper features wherever possible. Right now, FreeForm comes with one handy option called `form_input_key`.  Setting this determines the parameter key that your forms are rendered with in Rails.
+
+*Why use this?*
+Well, I like to keep my form keys fairly concise, but in a bigger application I often end up namespacing my forms.  And changing namespaces sometimes breaks Cucumber specs, which might be hardcoded to find a particular ID.  No more!
+
+```ruby
+class MyScope::UserForm < FreeForm::Form
+  form_input_key :user # Sets the parameter key for HTML rendering.
+  form_models :user
+
+  property :email,                 :on => :user
+end
+```
+Would render with HTML input fields like 
+`<input id="user_email" ... name="user[email]"></input>` instead of
+`<input id="my_scope_user_form_email" ... name="my_scope_user_form[email]"></input>`
 
 ## Contributing
 
