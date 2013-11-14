@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = Freeform::VERSION
   spec.authors       = ["brycesenz"]
   spec.email         = ["bryce.senz@gmail.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
-  spec.homepage      = ""
+  spec.description   = %q{Decouple your forms from your domain models}
+  spec.summary       = %q{FreeForm lets you compose forms however you like, explicitly guiding how each field maps back to your domain models.  No more accepting nested attributes!}
+  spec.homepage      = "https://github.com/brycesenz/freeform"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
@@ -20,4 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"
+
+  # Customer Development Dependencies
+  spec.add_development_dependency "rspec"
 end
