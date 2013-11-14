@@ -11,36 +11,25 @@ module FreeForm
     end
     
     def save
-      if valid?
-        success = true
-        self.class.models.each do |form_model|
-          if send(form_model).is_a?(Array)
-            send(form_model).each do |model|
-              success = success && send(model).save
-            end
-          else
-            success = success && send(form_model).save
-          end
+      return false unless valid?
+      self.class.models.each do |form_model|
+        if send(form_model).is_a?(Array)
+          send(form_model).each { |model| return model.save }
+        else
+          return false unless send(form_model).save
         end
-        return success
-      else
-        false
       end
+      return true
     end
   
     def save!
-      if valid?
-        self.class.models.each do |form_model|
-          if send(form_model).is_a?(Array)
-            send(form_model).each do |model|
-              model.save!
-            end
-          else
-            send(form_model).save!
-          end
+      raise StandardError, "form invalid." unless valid?
+      self.class.models.each do |form_model|
+        if send(form_model).is_a?(Array)
+          send(form_model).each { |model| model.save! }
+        else
+          send(form_model).save!
         end
-      else
-        raise ActiveRecord::RecordInvalid, self
       end
     end
   
@@ -49,9 +38,7 @@ module FreeForm
       model_validity = true
       self.class.models.each do |form_model|
         if send(form_model).is_a?(Array)
-          send(form_model).each do |model|
-            model_validity = validate_and_append_errors(model) && model_validity          
-          end
+          send(form_model).each { |model| model_validity = validate_and_append_errors(model) && model_validity }
         else
           model_validity = validate_and_append_errors(send(form_model)) && model_validity
         end
@@ -60,11 +47,8 @@ module FreeForm
     end
   
     def validate_and_append_errors(model)
-      return true unless model.respond_to?(:valid?)
       unless model.valid?
-        model.errors.each do |error, message|
-          self.errors.add(error, message)
-        end
+        model.errors.each { |error, message| self.errors.add(error, message) }
         return false
       end
       return true
