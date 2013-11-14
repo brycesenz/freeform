@@ -129,7 +129,7 @@ class UserForm < FreeForm::Form
   end
 end
 ```
-Personally, I use validations in both places to stay DRY.  My domain models have their own validations, which I use for things that are universally true of that model (e.g. email is correctly formatted).  Some forms have validations though that are specific to that form, and they live in the form itself (see above example with `current_password`) 
+Personally, I use validations in both places.  My domain models have their own validations, which I use for things that are universally true of that model (e.g. email is correctly formatted).  Some forms have validations though that are specific to that form, and they live in the form itself (see above example with `current_password`) 
 
 ## Nesting Forms
 
@@ -156,7 +156,8 @@ When using a nested form, the form starts with **no** nested forms pre-built.  F
 ```ruby
 form = UserForm.new(:user => User.new)
 form.build_phone_numbers(:phone => Phone.new)
-form.build_phone_number(:phone => Phone.new) # The singularized version is aliased as well.
+# The singularized version is aliased as well.
+form.build_phone_number(:phone => Phone.new) 
 ```
 
 You can specify the default initializers for that form with the accessor `#{nested_form_name}_form_initializer`.
@@ -174,8 +175,7 @@ This is a necessary parameter if you're using the `nested_form` gem, as new nest
 
 FreeForm's flexibility comes at a bit of a cost - it makes no assumptions about relationships between initialized models or nested forms.  So initializing the form correctly is important.
 
-** For Example **
-
+** Example **
 ```ruby
 current_user               # => #<User:0x100124b88>
 current_user.phone_numbers # => [#<Phone:0x100194867>, #<Phone:0x100100cd4>]
@@ -197,7 +197,8 @@ end
 form = UserForm.new(:user => current_user)
 ```
 
-Think the user's phone numbers will show up as nested forms? **Nope**.  If you want them there, put them there.
+Will the current_user's phone numbers automatically appear as nested forms? **No.**
+If you want them there, put them there, like this:
 
 ```ruby
 current_user.phone_numbers.each do |phone_number|
@@ -217,7 +218,7 @@ class MyScope::UserForm < FreeForm::Form
   form_input_key :user # Sets the parameter key for HTML rendering.
   form_models :user
 
-  property :email,                 :on => :user
+  property :email, :on => :user
 end
 ```
 Would render with HTML input fields like 
