@@ -16,11 +16,7 @@ describe FreeForm::Nested do
             property :street, :on => :address
           end
           
-#          def build_mailing_address   
-#            mailing_addresses_form_class.new(build_mailing_address_attributes)
-#          end
-          
-          def build_mailing_address_attributes
+          def mailing_address_form_initializer
             {:address => OpenStruct.new}
           end
           
@@ -36,7 +32,14 @@ describe FreeForm::Nested do
       end
   
       let(:form) do
-        form_class.new(:mailing_addresses => {  })
+        form_class.new
+#        form_class.new(:build_mailing_address_form => {  })
+=begin
+        form_class.new(
+          :customer => Customer.new,
+          :user_account => UserAccount.new
+          :addresses_form_initializer => {:address => }) 
+=end
       end
 
       describe "form class" do

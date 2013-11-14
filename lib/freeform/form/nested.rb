@@ -25,9 +25,6 @@ module FreeForm
 
         # Define host nested attribute handling works
         create_nested_attribute_methods(attribute, nested_form_class)
-
-        # Define form class method
-        create_form_class_method(attribute, nested_form_class)        
       end
       alias_method :has_many, :nested_form
       alias_method :has_one, :nested_form
@@ -40,13 +37,15 @@ module FreeForm
 
       protected
       def define_accessor_methods(attribute)
+        singularized_attribute = attribute.to_s.singularize.to_s
+
         define_method(:"#{attribute}") do
           @nested_attributes ||= []
         end
         
-        define_method(:"build_#{attribute.to_s.singularize}") do
+        define_method(:"build_#{singularized_attribute}") do
           form_class = self.class.nested_forms[:"#{attribute}"]
-          form_model = form_class.new(send("build_mailing_address_attributes"))
+          form_model = form_class.new(send("#{singularized_attribute}_form_initializer"))
           @nested_attributes ||= []
           @nested_attributes << form_model
           form_model
@@ -56,15 +55,7 @@ module FreeForm
       def create_nested_attribute_methods(attribute, nested_form_class)
         # Equivalent of "address_attributes=" for "address" attribute
         define_method(:"#{attribute}_attributes=") do |params|
-          # Get the difference between sets of params passed and current form objects
-          num_param_models = params.length
-          num_built_models = self.send(:"#{attribute}").nil? ? 0 : self.send(:"#{attribute}").length          
-          additional_models_needed = num_param_models - num_built_models
-
-          # Make up the difference by building new nested form models
-          additional_models_needed.times do
-            send("build_#{attribute.to_s.singularize}")
-          end
+          build_models_from_param_count(attribute, params)
 
           self.send(:"#{attribute}").zip(params).each do |model, params_array|
             identifier = params_array[0]
@@ -74,12 +65,20 @@ module FreeForm
           end
         end
       end
-      
-      #FIXME: Why do I need this??
-      def create_form_class_method(attribute, form_class)
-        define_method(:"#{attribute}_form_class") do
-          self.class.nested_forms[:"#{attribute}"]
-        end        
+    end
+
+    # Instance Methods
+    #--------------------------------------------------------------------------
+    protected
+    def build_models_from_param_count(attribute, params)
+      # Get the difference between sets of params passed and current form objects
+      num_param_models = params.length
+      num_built_models = self.send(:"#{attribute}").nil? ? 0 : self.send(:"#{attribute}").length          
+      additional_models_needed = num_param_models - num_built_models
+
+      # Make up the difference by building new nested form models
+      additional_models_needed.times do
+        send("build_#{attribute.to_s.singularize}")
       end
     end
   end
