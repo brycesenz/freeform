@@ -9,7 +9,10 @@ module FreeForm
 
       # Models
       #------------------------------------------------------------------------
-      attr_accessor :models
+      def models
+        @models ||= []
+      end
+
       def declared_model(name, opts={})
         @models ||= []
         @models << name        
@@ -26,7 +29,10 @@ module FreeForm
 
       # Properties
       #------------------------------------------------------------------------
-      attr_accessor :ignored_blank_params
+      def ignored_blank_params
+        @ignored_blank_params ||= []
+      end
+
       def property(attribute, options={})
         def_delegator options[:on], attribute
         def_delegator options[:on], "#{attribute}=".to_sym
@@ -36,7 +42,6 @@ module FreeForm
     end
 
     def assign_params(params)
-      #TODO: Add this method back in
       filter_dates(params)
       params.each_pair do |attribute, value|
         self.send :"#{attribute}=", value unless ignore?(attribute, value)
@@ -48,10 +53,8 @@ module FreeForm
     alias_method :fill, :assign_params
     
     def ignore?(attribute, value)
-      if (self.class.ignored_blank_params.include?(attribute.to_sym) && value.blank?)
-        return true
-      end
-      return false
+      ignored_if_blank = self.class.ignored_blank_params
+      return (ignored_if_blank.include?(attribute.to_sym) && value.blank?)
     end
 
     private

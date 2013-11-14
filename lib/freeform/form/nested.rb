@@ -7,10 +7,8 @@ module FreeForm
     end
         
     module ClassMethods
-      attr_accessor :nested_models
-      attr_accessor :has_many_forms
-      
-      def has_many(attribute, options={}, &block)
+      attr_accessor :nested_forms      
+      def nested_form(attribute, options={}, &block)
         # Define an attr_accessor for the parent class to hold this attribute
         declared_model(attribute)
         define_accessor_methods(attribute)
@@ -22,8 +20,8 @@ module FreeForm
         end
         self.const_set("#{attribute.to_s.camelize}Form", nested_form_class)
 
-        # Add this new form to our has_many_forms attribute
-        register_form(attribute, nested_form_class)
+        @nested_forms ||= {}
+        @nested_forms.merge!({:"#{attribute}" => nested_form_class})
 
         # Define host nested attribute handling works
         create_nested_attribute_methods(attribute, nested_form_class)
@@ -31,43 +29,41 @@ module FreeForm
         # Define form class method
         create_form_class_method(attribute, nested_form_class)        
       end
+      alias_method :has_many, :nested_form
+      alias_method :has_one, :nested_form
 
       def reflect_on_association(key, *args)
         reflection = OpenStruct.new
-        reflection.klass = self.has_many_forms[key]
+        reflection.klass = self.nested_forms[key]
         reflection
       end
 
       protected
-      def register_form(attribute, form_class)
-        @has_many_forms ||= {}
-        @has_many_forms.merge!({:"#{attribute}" => form_class})       
-      end
-
       def define_accessor_methods(attribute)
         define_method(:"#{attribute}") do
-          @nested_attributes
+          @nested_attributes ||= []
         end
         
-        define_method(:"add_#{attribute.to_s.singularize}") do |model|
+        define_method(:"build_#{attribute.to_s.singularize}") do
+          form_class = self.class.nested_forms[:"#{attribute}"]
+          form_model = form_class.new(send("build_mailing_address_attributes"))
           @nested_attributes ||= []
-          @nested_attributes << model
+          @nested_attributes << form_model
+          form_model
         end
       end
 
       def create_nested_attribute_methods(attribute, nested_form_class)
-        # Equivalent of "address_attributes" for "address" attribute
-        define_method(:"#{attribute}_attributes") do
-        end
-
         # Equivalent of "address_attributes=" for "address" attribute
         define_method(:"#{attribute}_attributes=") do |params|
           # Get the difference between sets of params passed and current form objects
-          additional_models_needed = params.length - self.send(:"#{attribute}").length
+          num_param_models = params.length
+          num_built_models = self.send(:"#{attribute}").nil? ? 0 : self.send(:"#{attribute}").length          
+          additional_models_needed = num_param_models - num_built_models
 
           # Make up the difference by building new nested form models
           additional_models_needed.times do
-            send(:"add_#{attribute.to_s.singularize}", send(:"build_#{attribute.to_s.singularize}"))
+            send("build_#{attribute.to_s.singularize}")
           end
 
           self.send(:"#{attribute}").zip(params).each do |model, params_array|
@@ -79,9 +75,10 @@ module FreeForm
         end
       end
       
+      #FIXME: Why do I need this??
       def create_form_class_method(attribute, form_class)
         define_method(:"#{attribute}_form_class") do
-          self.class.has_many_forms[:"#{attribute}"]
+          self.class.nested_forms[:"#{attribute}"]
         end        
       end
     end

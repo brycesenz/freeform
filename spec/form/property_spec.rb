@@ -11,7 +11,7 @@ describe FreeForm::Property do
             declared_model :test_model_1
             declared_model :test_model_2
     
-            def initialize(h)
+            def initialize(h={})
               h.each {|k,v| send("#{k}=",v)}
             end  
           end
@@ -46,7 +46,7 @@ describe FreeForm::Property do
             form_model :test_model_1
             form_model :test_model_2
     
-            def initialize(h)
+            def initialize(h={})
               h.each {|k,v| send("#{k}=",v)}
             end  
           end
@@ -80,7 +80,7 @@ describe FreeForm::Property do
             include FreeForm::Property
             declared_models :test_model_1, :test_model_2
     
-            def initialize(h)
+            def initialize(h={})
               h.each {|k,v| send("#{k}=",v)}
             end  
           end
@@ -114,7 +114,7 @@ describe FreeForm::Property do
             include FreeForm::Property
             form_models :test_model_1, :test_model_2
     
-            def initialize(h)
+            def initialize(h={})
               h.each {|k,v| send("#{k}=",v)}
             end  
           end
@@ -153,9 +153,9 @@ describe FreeForm::Property do
             property :attribute_1, :on => :test_model
             property :attribute_2, :on => :test_model, :ignore_blank => true
     
-            def initialize(h)
+            def initialize(h={})
               h.each {|k,v| send("#{k}=",v)}
-            end
+            end  
           end
         end
     
