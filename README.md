@@ -212,11 +212,11 @@ form.build_phone_numbers(:phone => Phone.new)
 form.build_phone_number(:phone => Phone.new) 
 ```
 
-You can specify the default initializers for that form with the accessor `#{nested_form_name}_form_initializer`.
+You can specify the default initializers for that form with the accessor `#{nested_form_name}_form_initializer`.  Just pass it a Proc/lambda that outputs the initialization hash, and you're good to go.
 ```ruby
 form = UserForm.new(
   :user => User.new, 
-  :phone_numbers_form_initializer => {:phone => Phone.new} )
+  :phone_numbers_form_initializer => lambda { {:phone => Phone.new} } )
 
 form.build_phone_numbers
 form.build_phone_number
