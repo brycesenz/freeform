@@ -7,6 +7,7 @@ require 'freeform/form/property'
 require 'freeform/form/validation'
 
 module FreeForm
+  class FormInvalid < StandardError; end
   class Form
     extend Forwardable
     extend ActiveModel::Naming
@@ -46,7 +47,7 @@ module FreeForm
     end
   
     def save!
-      raise StandardError, "form invalid." unless valid?
+      raise FreeForm::FormInvalid, "form invalid." unless valid?
       self.class.models.each do |form_model|
         if send(form_model).is_a?(Array)
           send(form_model).each { |model| model.save! }

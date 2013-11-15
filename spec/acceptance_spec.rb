@@ -203,7 +203,7 @@ describe FreeForm::Form do
       end
 
       it "should raise error on 'save!'" do
-        expect{ form.save!.should be_false }.to raise_error
+        expect{ form.save!.should be_false }.to raise_error(FreeForm::FormInvalid)
       end
     end
 
