@@ -35,25 +35,42 @@ module FreeForm
     
     def save
       return false unless valid?
-      self.class.models.each do |form_model|
-        if send(form_model).is_a?(Array)
-          send(form_model).each { |model| return model.save }
-        else
-          return false unless send(form_model).save
-        end
-      end
-      return true
+      return nested_save
     end
   
     def save!
       raise StandardError, "form invalid." unless valid?
+      return nested_save!
+    end    
+    
+    private
+    def nested_save
+      self.class.models.each do |form_model|
+        if send(form_model).is_a?(Array)
+          send(form_model).each { |model| return model.save }
+        else
+          if marked_for_destruction
+            send(form_model).destroy
+          else
+            return false unless send(form_model).save
+          end
+        end
+      end
+      return true
+    end
+    
+    def nested_save!
       self.class.models.each do |form_model|
         if send(form_model).is_a?(Array)
           send(form_model).each { |model| model.save! }
         else
-          send(form_model).save!
+          if marked_for_destruction
+            send(form_model).destroy
+          else
+            send(form_model).save!
+          end
         end
       end
-    end    
+    end
   end
 end

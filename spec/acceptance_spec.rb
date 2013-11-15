@@ -12,6 +12,7 @@ describe FreeForm::Form do
 
       def save; return valid? end
       alias_method :save!, :save
+      def destroy; return true end
     end
   end
 
@@ -29,6 +30,7 @@ describe FreeForm::Form do
 
       def save; return valid? end
       alias_method :save!, :save
+      def destroy; return true end
     end
   end
 
@@ -43,6 +45,7 @@ describe FreeForm::Form do
 
       def save; return valid? end
       alias_method :save!, :save
+      def destroy; return true end
     end
   end
 
@@ -50,6 +53,7 @@ describe FreeForm::Form do
     klass = Class.new(FreeForm::Form) do
       form_input_key :user
       form_models :user, :address
+      validate_models
       
       property :username, :on => :user      
       property :email,    :on => :user      
@@ -59,6 +63,7 @@ describe FreeForm::Form do
 
       has_many :phone_numbers do
         form_model :phone
+        validate_models
         
         property :area_code, :on => :phone
         property :number,    :on => :phone
@@ -155,8 +160,45 @@ describe FreeForm::Form do
     end
   end
 
-  describe "saving", :saving => true do
-    context "form is invalid" do
+  describe "validations", :validations => true do
+    context "with invalid attributes" do
+      let(:attributes) do {
+        :username => "dummyuser",
+        :email => "test@email.com",
+        :street => nil,
+        :city => "Portland",
+        :state => "Oregon",
+        :phone_numbers_attributes => {
+          "0" => {
+            :number => "123-4567"
+          },
+          "1" => {
+            :area_code => "202"
+          }
+        } }
+      end
+      
+      before(:each) do
+        form.fill(attributes)
+        form.valid?
+      end
+      
+      it "should be invalid" do
+        form.should_not be_valid
+      end
+
+      it "should have errors on street" do
+        form.errors[:street].should eq(["can't be blank"])
+      end
+
+      it "should have errors on first phone number's area code" do
+        form.phone_numbers.first.errors[:area_code].should be_empty
+      end
+
+      it "should have errors on first phone number's number" do
+        form.phone_numbers.last.errors[:number].should eq(["can't be blank"])
+      end
+
       it "should return false on 'save'" do
         form.save.should be_false
       end
@@ -166,7 +208,33 @@ describe FreeForm::Form do
       end
     end
 
-    context "form is valid" do
+    context "with valid attributes" do
+      let(:attributes) do {
+        :username => "dummyuser",
+        :email => "test@email.com",
+        :street => "1 Maple St.",
+        :city => "Portland",
+        :state => "Oregon",
+        :phone_numbers_attributes => {
+          "0" => {
+            :area_code => "555",
+            :number => "123-4567"
+          },
+          "1" => {
+            :area_code => "202",
+            :number => "876-5432"
+          }
+        } }
+      end
+      
+      before(:each) do
+        form.fill(attributes)
+      end
+      
+      it "should be valid" do
+        form.should be_valid
+      end
+
       it "should return true on 'save', and call save on other models" do
         form.user.should_receive(:save).and_return(true)
         form.address.should_receive(:save).and_return(true)
@@ -179,6 +247,44 @@ describe FreeForm::Form do
         form.address.should_receive(:save!).and_return(true)
         form.phone_numbers.first.phone.should_receive(:save!).and_return(true)
         form.save!
+      end
+      
+      describe "destroying on save", :destroy_on_save => true do
+        describe "save" do
+          it "destroys models on save if set" do
+            form._destroy = true
+            form.user.should_receive(:destroy).and_return(true)
+            form.address.should_receive(:destroy).and_return(true)
+            form.phone_numbers.first.phone.should_receive(:save).and_return(true)
+            form.save
+          end
+    
+          it "destroys nested models on save if set" do
+            form.phone_numbers.first._destroy = true
+            form.user.should_receive(:save).and_return(true)
+            form.address.should_receive(:save).and_return(true)
+            form.phone_numbers.first.phone.should_receive(:destroy).and_return(true)
+            form.save
+          end
+        end
+        
+        describe "save!" do
+          it "destroys models on save! if set" do
+            form._destroy = true
+            form.user.should_receive(:destroy).and_return(true)
+            form.address.should_receive(:destroy).and_return(true)
+            form.phone_numbers.first.phone.should_receive(:save!).and_return(true)
+            form.save!
+          end
+  
+          it "destroys nested models on save! if set" do
+            form.phone_numbers.first._destroy = true
+            form.user.should_receive(:save!).and_return(true)
+            form.address.should_receive(:save!).and_return(true)
+            form.phone_numbers.first.phone.should_receive(:destroy).and_return(true)
+            form.save!
+          end
+        end
       end
     end
   end
