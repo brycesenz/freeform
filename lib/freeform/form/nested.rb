@@ -12,6 +12,21 @@ module FreeForm
       attr_accessor :nested_forms      
 
       def nested_form(attribute, options={}, &block)
+        # Specify the class method on which we're defining the initializer for this form.
+        parent_class = self
+        initializer_method = options[:class_initializer]
+        unless initializer_method.nil?
+          define_singleton_method(:"#{initializer_method}") do
+            var = instance_variable_get(:"@#{initializer_method}")
+            var ||= {}
+            var
+          end
+  
+          define_singleton_method(:"#{initializer_method}=") do |val|
+            instance_variable_set(:"@#{initializer_method}", val)
+          end
+        end
+
         # Define an attr_accessor for the parent class to hold this attribute
         declared_model(attribute)
 
@@ -19,6 +34,22 @@ module FreeForm
         nested_form_class = Class.new(FreeForm::Form) do
           include FreeForm::Property
           self.instance_eval(&block)
+          
+          define_singleton_method(:default_initializer) do
+            unless initializer_method.nil?
+              method = parent_class.send(initializer_method)
+              if method.is_a? Proc
+                method.call
+              else
+                method
+              end
+            end
+          end
+
+          def initialize(p={}, *args)
+            p = self.class.default_initializer.merge(p)
+            super(p, *args)
+          end
         end
         self.const_set("#{attribute.to_s.camelize}Form", nested_form_class)
 
@@ -53,18 +84,10 @@ module FreeForm
           @nested_attributes ||= []
         end
         
-        # Example: form.address_form_initializer (aliased to form.addresses_form_initializer)
-        attr_accessor :"#{attribute}_form_initializer"
-        alias_method :"#{singularized_attribute}_form_initializer", :"#{attribute}_form_initializer"
-        alias_method :"#{singularized_attribute}_form_initializer=", :"#{attribute}_form_initializer="
-
         # Example: form.build_addresses (optional custom initializer)
-        define_method(:"build_#{attribute}") do |initializer=nil|
+        define_method(:"build_#{attribute}") do |initializer={}|
           # Get correct class
           form_class = self.class.nested_forms[:"#{attribute}"]
-          
-          # Set default intializer if none provided
-          initializer ||= send("#{attribute}_form_initializer").call
 
           # Build new model
           form_model = form_class.new(initializer)

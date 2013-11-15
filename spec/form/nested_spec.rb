@@ -9,13 +9,13 @@ describe FreeForm::Nested do
         klass = Class.new(Module) do
           include FreeForm::Property
           include FreeForm::Nested
-
-          has_many :mailing_addresses do
+          
+          has_many :mailing_addresses, :class_initializer => :mailing_address_initializer do 
             declared_model :address
             
-            property :street, :on => :address
+            property :street, :on => :address            
           end
-          
+
           def initialize(h={})
             h.each {|k,v| send("#{k}=",v)}
           end  
@@ -28,9 +28,8 @@ describe FreeForm::Nested do
       end
   
       let(:form) do
-        form_model = form_class.new( 
-          :mailing_address_form_initializer => lambda { { :address => OpenStruct.new } } 
-        )
+        form_class.mailing_address_initializer = lambda { { :address => OpenStruct.new } } 
+        form_model = form_class.new
       end
 
       describe "form class" do
@@ -53,12 +52,19 @@ describe FreeForm::Nested do
 
         it "builds unique models" do
           # Using module here, since they initialize uniquely
-          form.mailing_address_form_initializer = lambda { { :address => Module.new } } 
+          form_class.mailing_address_initializer = lambda { { :address => Module.new } } 
+          form = form_class.new
           form.build_mailing_address
           form.build_mailing_address
           address_1 = form.mailing_addresses.first.address
           address_2 = form.mailing_addresses.last.address
           address_1.should_not eq(address_2)
+        end
+
+        it "builds initialized models through reflection on association" do
+          form_class.mailing_address_initializer = lambda { { :address => Module.new } } 
+          klass = form_class.reflect_on_association(:mailing_addresses).klass
+          klass.new.address.should be_a(Module)
         end
 
         it "allows nested_forms to be built with custom initializers" do

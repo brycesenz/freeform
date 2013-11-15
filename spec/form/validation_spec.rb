@@ -46,10 +46,14 @@ describe FreeForm::Validation do
           property :username, :on => :user
           validates :username, :presence => true
           
-          nested_form :addresses do
+          nested_form :addresses, :class_initializer => :address_initializer do
             declared_model :address
             
             property :street, :on => :address
+          end
+          
+          def self.address_initializer
+            {:address => OpenStruct.new}
           end
           
           def initialize(h={})
@@ -64,10 +68,8 @@ describe FreeForm::Validation do
       end
   
       let(:form) do
-        test_form = form_class.new( 
-          :user => user, 
-          :address_form_initializer => lambda { { :address => address } } )
-        test_form.build_address
+        test_form = form_class.new(:user => user)
+        test_form.build_address(:address => address)
         test_form
       end
 
@@ -100,7 +102,7 @@ describe FreeForm::Validation do
           property :form_property
           validates :form_property, :presence => true
           
-          nested_form :addresses do
+          nested_form :addresses, :class_initializer => :address_initializer do
             include ActiveModel::Validations
             include FreeForm::Property
             include FreeForm::Nested
@@ -110,6 +112,10 @@ describe FreeForm::Validation do
             
             property :street, :on => :address
             property :city, :on => :address
+          end
+          
+          def self.address_initializer
+            {:address => OpenStruct.new}
           end
           
           def initialize(h={})
@@ -124,10 +130,8 @@ describe FreeForm::Validation do
       end
   
       let(:form) do
-        test_form = form_class.new( 
-          :user => user, 
-          :address_form_initializer => lambda { { :address => address } } )
-        test_form.build_address
+        test_form = form_class.new( :user => user )
+        test_form.build_address( :address => address )
         test_form
       end
 

@@ -57,12 +57,12 @@ describe FreeForm::Form do
       allow_destroy_on_save
       
       property :username, :on => :user      
-      property :email,    :on => :user      
+      property :email,    :on => :user
       property :street, :on => :address      
       property :city,   :on => :address      
       property :state,  :on => :address      
 
-      has_many :phone_numbers do
+      has_many :phone_numbers, :class_initializer => :phone_number_initializer do
         form_model :phone
         validate_models
         allow_destroy_on_save
@@ -79,11 +79,8 @@ describe FreeForm::Form do
   end
 
   let(:form) do
-    form_model = form_class.new( 
-      :user => user_class.new, 
-      :address => address_class.new,
-      :phone_numbers_form_initializer => lambda { { :phone => phone_class.new } }
-      )
+    form_class.phone_number_initializer = lambda { {:phone => phone_class.new} }
+    form_model = form_class.new( :user => user_class.new, :address => address_class.new)
     form_model.build_phone_number
     form_model
   end

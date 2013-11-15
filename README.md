@@ -12,7 +12,7 @@ FreeForm is designed primarily with Rails in mind, but it should work on any Rub
 
 Add this line to your application's Gemfile:
 
-    gem 'freeform'
+    gem 'freeform', '~> 0.0.3rc2'
 
 And then execute:
 
@@ -212,16 +212,28 @@ form.build_phone_numbers(:phone => Phone.new)
 form.build_phone_number(:phone => Phone.new) 
 ```
 
-You can specify the default initializers for that form with the accessor `#{nested_form_name}_form_initializer`.  Just pass it a Proc/lambda that outputs the initialization hash, and you're good to go.
+**Working with nested_form gem**
+In order to support the `nested_form` gem, FreeForm currently uses a bit of hackiness. You actually need to specify an option on your nested forms called `class_initializer`, that points to a class method to use to specify the default parameters.  You can either provide the method hardcoded into the class, or set it externally.  It accepts either a hardcoded hash, or a Proc.
 ```ruby
-form = UserForm.new(
-  :user => User.new, 
-  :phone_numbers_form_initializer => lambda { {:phone => Phone.new} } )
+class UserForm < FreeForm::Form
+  form_models :user
 
-form.build_phone_numbers
-form.build_phone_number
+  property :username,              :on => :user
+  property :email,                 :on => :user
+  
+  nested_form :phone_numbers, :class_initializer => :phone_initializer do
+    form_models :phone
+	
+	property :area_code,              :on => :phone
+	property :number,                 :on => :phone
+  end
+end
+
+UserForm.phone_initializer = lambda { { :phone => Phone.new } }
+form = UserForm.new( :user => User.new )
+form.build_phone_number # Uses Phone.new to initialize the nested form.
 ```
-This is a necessary parameter if you're using the `nested_form` gem, as new nested forms are initialized automatically.
+I apologize for the ugliness - In the future, I plan to roll FreeForm's own version of the `nested_form` javascript functionality.
 
 ## Initialize With Care!
 
@@ -238,7 +250,7 @@ class UserForm < FreeForm::Form
   property :username,              :on => :user
   property :email,                 :on => :user
   
-  nested_form :phone_numbers do
+  nested_form :phone_numbers, :class_initializer => :phone_initializer do
     form_models :phone
 	
 	property :area_code,              :on => :phone
@@ -253,6 +265,7 @@ Will the current_user's phone numbers automatically appear as nested forms? **No
 If you want them there, put them there, like this:
 
 ```ruby
+UserForm.phone_initializer = lambda { { :phone => current_user.phone_numbers.build } }
 current_user.phone_numbers.each do |phone_number|
   form.build_phone_number(:phone => phone_number)
 end
