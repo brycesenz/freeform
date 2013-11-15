@@ -1,12 +1,12 @@
 # FreeForm
 
-FreeForm is a gem designed to give you total control over form objects, allowing you to map form objects to domain objects in any way that you see fit.
+FreeForm is a gem designed to give you total control over form objects, allowing you to map form objects to domain objects in any way that you see fit.  The primary benefits are:
+  * Decoupling form objects from domain models
+  * Allowing form-specific validations, while respecting model validations
+  * Simply composing multi-model forms
+  * Removing the ugliness of `accepts_nested_attributes_for`
 
-It is still a very-pre-beta work in progess, but hopefully it can showcase the power of form objects.
-
-FreeForm is designed primarily with Rails in mind, but it should work on any Ruby framework.
-
-FreeForm is compatible with (as far as I know) most form gems, including simpleform, formbuilder, and Ryan Bate's nested_form gem.
+FreeForm is designed primarily with Rails in mind, but it should work on any Ruby framework.  FreeForm is compatible with most form gems, including simpleform, formbuilder, and Ryan Bate's nested_form gem.
 
 ## Installation
 
@@ -107,6 +107,58 @@ end
 user = User.new
 RegistrationForm.new(:user => user, :address => user.build_address)
 ```
+## Assigning Parameters
+
+Forms can be populated either directly through accessors (e.g. `form.street = "123 Main St."`), or using the `assign_params()` or `fill()` methods.
+
+```ruby
+class RegistrationForm < FreeForm::Form
+  form_models :user, :address
+
+  property :username,              :on => :user
+  property :street,                :on => :address
+end
+
+form = RegistrationForm.new(:user => User.new, :address => Address.new)
+form.assign_params({ :username => "myusername", :street => "1600 Pennsylvania Ave." })
+# fill() is just an alias for assign_params
+form.fill({ :username => "myusername", :street => "1600 Pennsylvania Ave." })
+```
+
+## Saving & Marking For Destruction
+
+Calling `form.save` will validate the form, then make a save call to each model defined in the form (and each nested form).  A call to `save!` behaves the same way.
+
+```ruby
+class RegistrationForm < FreeForm::Form
+  form_models :user, :address
+
+  property :username,              :on => :user
+  property :street,                :on => :address
+end
+
+form = RegistrationForm.new(:user => User.new, :address => Address.new)
+form.fill({ :username => "myusername", :street => "1600 Pennsylvania Ave." })
+form.save # SAVES the User and Address models
+```
+
+Additionally, each model has a method you can add called `allow_destroy_on_save`.  This method adds an accessor called `_destroy` (also aliased as `marked_for_destruction`) that can be set.  If this is set, each form in the model will receive a `destroy` call on save.
+
+```ruby
+class RegistrationForm < FreeForm::Form
+  form_models :user, :address
+  allow_destroy_on_save
+
+  property :username,              :on => :user
+  property :street,                :on => :address
+end
+
+form = RegistrationForm.new(:user => User.new, :address => Address.new)
+form.fill({ :username => "myusername", :street => "1600 Pennsylvania Ave.", :_destroy => "1" })
+form.save # DESTROYS the User and Address models
+```
+This method is necessary if you use the nested_form gem for dynamically creating/deleting models.
+
 ## Form Validations
 
 FreeForm handles validations wherever you define them.  If you want to check model validations, simply specify that option in your form definition

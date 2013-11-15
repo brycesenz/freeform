@@ -33,6 +33,12 @@ module FreeForm
         @ignored_blank_params ||= []
       end
 
+      def allow_destroy_on_save
+        # Define _destroy method for marked-for-destruction handling
+        attr_accessor :_destroy
+        alias_method :marked_for_destruction, :_destroy
+      end
+
       def property(attribute, options={})
         if options[:on]
           def_delegator options[:on], attribute

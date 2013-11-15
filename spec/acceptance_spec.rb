@@ -54,6 +54,7 @@ describe FreeForm::Form do
       form_input_key :user
       form_models :user, :address
       validate_models
+      allow_destroy_on_save
       
       property :username, :on => :user      
       property :email,    :on => :user      
@@ -64,6 +65,7 @@ describe FreeForm::Form do
       has_many :phone_numbers do
         form_model :phone
         validate_models
+        allow_destroy_on_save
         
         property :area_code, :on => :phone
         property :number,    :on => :phone
@@ -259,6 +261,14 @@ describe FreeForm::Form do
             form.save
           end
     
+          it "destroys models on save if set through attribute" do
+            form.fill({:_destroy => "1"})
+            form.user.should_receive(:destroy).and_return(true)
+            form.address.should_receive(:destroy).and_return(true)
+            form.phone_numbers.first.phone.should_receive(:save).and_return(true)
+            form.save
+          end
+
           it "destroys nested models on save if set" do
             form.phone_numbers.first._destroy = true
             form.user.should_receive(:save).and_return(true)
@@ -277,6 +287,14 @@ describe FreeForm::Form do
             form.save!
           end
   
+          it "destroys models on save! if set" do
+            form.fill({:_destroy => "1"})
+            form.user.should_receive(:destroy).and_return(true)
+            form.address.should_receive(:destroy).and_return(true)
+            form.phone_numbers.first.phone.should_receive(:save!).and_return(true)
+            form.save!
+          end
+
           it "destroys nested models on save! if set" do
             form.phone_numbers.first._destroy = true
             form.user.should_receive(:save!).and_return(true)
