@@ -1,5 +1,5 @@
 module FreeForm
-  module Persistence
+  module Validation
     def self.included(base)
       base.extend(ClassMethods)
     end
@@ -9,30 +9,7 @@ module FreeForm
         validate :model_validity
       end
     end
-    
-    def save
-      return false unless valid?
-      self.class.models.each do |form_model|
-        if send(form_model).is_a?(Array)
-          send(form_model).each { |model| return model.save }
-        else
-          return false unless send(form_model).save
-        end
-      end
-      return true
-    end
-  
-    def save!
-      raise StandardError, "form invalid." unless valid?
-      self.class.models.each do |form_model|
-        if send(form_model).is_a?(Array)
-          send(form_model).each { |model| model.save! }
-        else
-          send(form_model).save!
-        end
-      end
-    end
-  
+      
     protected
     def model_validity
       model_validity = true

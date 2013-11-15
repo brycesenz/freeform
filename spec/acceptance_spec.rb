@@ -154,4 +154,32 @@ describe FreeForm::Form do
       form.phone_numbers.last.phone.area_code.should eq("202")
     end
   end
+
+  describe "saving", :saving => true do
+    context "form is invalid" do
+      it "should return false on 'save'" do
+        form.save.should be_false
+      end
+
+      it "should raise error on 'save!'" do
+        expect{ form.save!.should be_false }.to raise_error
+      end
+    end
+
+    context "form is valid" do
+      it "should return true on 'save', and call save on other models" do
+        form.user.should_receive(:save).and_return(true)
+        form.address.should_receive(:save).and_return(true)
+        form.phone_numbers.first.phone.should_receive(:save).and_return(true)
+        form.save
+      end
+
+      it "should return true on 'save!', and call save! on other models" do
+        form.user.should_receive(:save!).and_return(true)
+        form.address.should_receive(:save!).and_return(true)
+        form.phone_numbers.first.phone.should_receive(:save!).and_return(true)
+        form.save!
+      end
+    end
+  end
 end
