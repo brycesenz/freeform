@@ -12,7 +12,7 @@ FreeForm is designed primarily with Rails in mind, but it should work on any Rub
 
 Add this line to your application's Gemfile:
 
-    gem 'freeform', '~> 0.0.3rc2'
+    gem 'freeform', '>= 0.0.4'
 
 And then execute:
 
