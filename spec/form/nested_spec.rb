@@ -28,7 +28,9 @@ describe FreeForm::Nested do
       end
   
       let(:form) do
-        form_class.new( :mailing_address_form_initializer => { :address => OpenStruct.new } )
+        form_model = form_class.new( 
+          :mailing_address_form_initializer => lambda { { :address => OpenStruct.new } } 
+        )
       end
 
       describe "form class" do
@@ -47,6 +49,16 @@ describe FreeForm::Nested do
           form.mailing_addresses.should be_an(Array)
           form.mailing_addresses.should_not be_empty
           form.mailing_addresses.first.should be_a(Module::DummyForm::MailingAddressesForm)
+        end
+
+        it "builds unique models" do
+          # Using module here, since they initialize uniquely
+          form.mailing_address_form_initializer = lambda { { :address => Module.new } } 
+          form.build_mailing_address
+          form.build_mailing_address
+          address_1 = form.mailing_addresses.first.address
+          address_2 = form.mailing_addresses.last.address
+          address_1.should_not eq(address_2)
         end
 
         it "allows nested_forms to be built with custom initializers" do

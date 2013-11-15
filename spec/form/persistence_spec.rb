@@ -34,7 +34,7 @@ describe FreeForm::Persistence do
   end
 
   describe "validation", :validation => true do    
-    context "without model validation" do
+    context "without model validation", :no_model_validation => true do
       let(:form_class) do
         klass = Class.new(Module) do
           include ActiveModel::Validations
@@ -64,7 +64,9 @@ describe FreeForm::Persistence do
       end
   
       let(:form) do
-        test_form = form_class.new( :user => OpenStruct.new, :address_form_initializer => { :address => OpenStruct.new } )
+        test_form = form_class.new( 
+          :user => user, 
+          :address_form_initializer => lambda { { :address => address } } )
         test_form.build_address
         test_form
       end
@@ -84,7 +86,7 @@ describe FreeForm::Persistence do
       end
     end
 
-    context "with model validation" do
+    context "with model validation", :model_validation => true do
       let(:form_class) do
         klass = Class.new(Module) do
           include ActiveModel::Validations
@@ -122,7 +124,9 @@ describe FreeForm::Persistence do
       end
   
       let(:form) do
-        test_form = form_class.new( :user => user, :address_form_initializer => { :address => address } )
+        test_form = form_class.new( 
+          :user => user, 
+          :address_form_initializer => lambda { { :address => address } } )
         test_form.build_address
         test_form
       end
@@ -186,7 +190,9 @@ describe FreeForm::Persistence do
     end
 
     let(:form) do
-      test_form = form_class.new( :user => user, :address_form_initializer => { :address => address } )
+      test_form = form_class.new( 
+        :user => user, 
+        :address_form_initializer => lambda { { :address => address } } )
       test_form.build_address
       test_form
     end

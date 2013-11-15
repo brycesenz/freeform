@@ -1,14 +1,5 @@
 require 'freeform/version'
 require 'freeform/form'
-#require 'reform/form/composition'
-#require 'reform/form/active_model'
 
-if defined?(Rails) # DISCUSS: is everyone ok with this?
- # require 'reform/rails'
+if defined?(Rails) # Where to include Rails specific modules...
 end
-
-=begin
-module Freeform
-  # Your code goes here...
-end
-=end

@@ -1,6 +1,10 @@
 require 'forwardable'
 require 'ostruct'
 require 'active_model'
+require 'freeform/form/form_input_key'
+require 'freeform/form/nested'
+require 'freeform/form/persistence'
+require 'freeform/form/property'
 
 module FreeForm
   class Form
@@ -9,6 +13,10 @@ module FreeForm
     extend ActiveModel::Callbacks
     include ActiveModel::Conversion
     include ActiveModel::Validations
+    include FreeForm::FormInputKey
+    include FreeForm::Nested
+    include FreeForm::Persistence
+    include FreeForm::Property
 
     # Instance Methods
     #----------------------------------------------------------------------------

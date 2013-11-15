@@ -64,7 +64,7 @@ module FreeForm
           form_class = self.class.nested_forms[:"#{attribute}"]
           
           # Set default intializer if none provided
-          initializer ||= send("#{attribute}_form_initializer")
+          initializer ||= send("#{attribute}_form_initializer").call
 
           # Build new model
           form_model = form_class.new(initializer)
