@@ -3,93 +3,91 @@ require 'freeform/form/property'
 require 'freeform/form/nested'
 
 describe FreeForm::Nested do
-  describe "class methods", :class_methods => true do
-    describe "has_many", :has_many => true do
-      let(:form_class) do
-        klass = Class.new(Module) do
-          include FreeForm::Property
-          include FreeForm::Nested
-          
-          has_many :mailing_addresses, :class_initializer => :mailing_address_initializer do 
-            declared_model :address
-            
-            property :street, :on => :address            
-          end
-
-          def initialize(h={})
-            h.each {|k,v| send("#{k}=",v)}
-          end  
-        end
-        # This wrapper just avoids CONST warnings
-        v, $VERBOSE = $VERBOSE, nil
-          Module.const_set("DummyForm", klass)
-        $VERBOSE = v
-        klass
-      end
-  
-      let(:form) do
-        form_class.mailing_address_initializer = lambda { { :address => OpenStruct.new } } 
-        form_model = form_class.new
-      end
-
-      describe "form class" do
-        it "sets nested_form in models" do
-          form_class.models.should eq([:mailing_addresses])
-        end
-      end
-      
-      describe "building nested models" do
-        it "initializes with no nested models prebuilt" do
-          form.mailing_addresses.should eq([])
-        end
+  describe "has_many", :has_many => true do
+    let(:form_class) do
+      klass = Class.new(Module) do
+        include FreeForm::Property
+        include FreeForm::Nested
         
-        it "allows nested_forms to be built" do
-          form.build_mailing_addresses
-          form.mailing_addresses.should be_an(Array)
-          form.mailing_addresses.should_not be_empty
-          form.mailing_addresses.first.should be_a(Module::DummyForm::MailingAddressesForm)
+        has_many :mailing_addresses, :class_initializer => :mailing_address_initializer do 
+          declared_model :address
+          
+          property :street, :on => :address            
         end
 
-        it "builds unique models" do
-          # Using module here, since they initialize uniquely
-          form_class.mailing_address_initializer = lambda { { :address => Module.new } } 
-          form = form_class.new
-          form.build_mailing_address
-          form.build_mailing_address
-          address_1 = form.mailing_addresses.first.address
-          address_2 = form.mailing_addresses.last.address
-          address_1.should_not eq(address_2)
-        end
+        def initialize(h={})
+          h.each {|k,v| send("#{k}=",v)}
+        end  
+      end
+      # This wrapper just avoids CONST warnings
+      v, $VERBOSE = $VERBOSE, nil
+        Module.const_set("DummyForm", klass)
+      $VERBOSE = v
+      klass
+    end
 
-        it "builds initialized models through reflection on association" do
-          form_class.mailing_address_initializer = lambda { { :address => Module.new } } 
-          klass = form_class.reflect_on_association(:mailing_addresses).klass
-          klass.new.address.should be_a(Module)
-        end
+    let(:form) do
+      form_class.mailing_address_initializer = lambda { { :address => OpenStruct.new } } 
+      form_model = form_class.new
+    end
 
-        it "allows nested_forms to be built with custom initializers" do
-          form.build_mailing_address(:address => OpenStruct.new(:street => "1600 Pennsylvania Ave."))
-          form.mailing_addresses.first.street.should eq("1600 Pennsylvania Ave.")
-        end
-
-        it "reflects on association" do
-          reflection = form_class.reflect_on_association(:mailing_addresses)
-          reflection.klass.should eq(Module::DummyForm::MailingAddressesForm)
-        end
+    describe "form class" do
+      it "sets nested_form in models" do
+        form_class.models.should eq([:mailing_addresses])
+      end
+    end
+    
+    describe "building nested models" do
+      it "initializes with no nested models prebuilt" do
+        form.mailing_addresses.should eq([])
       end
       
-      describe "setting attributes" do
-        describe "nested attribute assignment" do
-          let(:attributes) do
-            { :mailing_addresses_attributes => { "0" => { :street => "123 Main St." } } }
-          end
-  
-          it "assigns nested attributes" do
-            form.fill(attributes)
-            form.mailing_addresses.first.street.should eq("123 Main St.")
-          end
-        end
-      end      
+      it "allows nested_forms to be built" do
+        form.build_mailing_addresses
+        form.mailing_addresses.should be_an(Array)
+        form.mailing_addresses.should_not be_empty
+        form.mailing_addresses.first.should be_a(Module::DummyForm::MailingAddressesForm)
+      end
+
+      it "builds unique models" do
+        # Using module here, since they initialize uniquely
+        form_class.mailing_address_initializer = lambda { { :address => Module.new } } 
+        form = form_class.new
+        form.build_mailing_address
+        form.build_mailing_address
+        address_1 = form.mailing_addresses.first.address
+        address_2 = form.mailing_addresses.last.address
+        address_1.should_not eq(address_2)
+      end
+
+      it "builds initialized models through reflection on association" do
+        form_class.mailing_address_initializer = lambda { { :address => Module.new } } 
+        klass = form_class.reflect_on_association(:mailing_addresses).klass
+        klass.new.address.should be_a(Module)
+      end
+
+      it "allows nested_forms to be built with custom initializers" do
+        form.build_mailing_address(:address => OpenStruct.new(:street => "1600 Pennsylvania Ave."))
+        form.mailing_addresses.first.street.should eq("1600 Pennsylvania Ave.")
+      end
+
+      it "reflects on association" do
+        reflection = form_class.reflect_on_association(:mailing_addresses)
+        reflection.klass.should eq(Module::DummyForm::MailingAddressesForm)
+      end
     end
+    
+    describe "setting attributes" do
+      describe "nested attribute assignment" do
+        let(:attributes) do
+          { :mailing_addresses_attributes => { "0" => { :street => "123 Main St." } } }
+        end
+
+        it "assigns nested attributes" do
+          form.fill(attributes)
+          form.mailing_addresses.first.street.should eq("123 Main St.")
+        end
+      end
+    end      
   end
 end
