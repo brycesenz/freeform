@@ -19,9 +19,14 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency             "activemodel"
+  spec.add_dependency             "simple_form"
+  spec.add_dependency             "formtastic"
+  spec.add_dependency             "nested_form", "~> 0.3.2"
+  spec.add_dependency             "rails", "~> 3.2.0"
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"
 
   # Customer Development Dependencies
   spec.add_development_dependency "rspec"
+  spec.add_development_dependency "rspec-rails", "~> 2.6"
 end
