@@ -1,22 +1,14 @@
 require 'spec_helper'
-require 'action_view'
+#require 'action_view'
 
 describe FreeForm::ViewHelper do
   include RSpec::Rails::HelperExampleGroup
-#  ActionView::Base.send(:include, Rails.application.routes.url_helpers)
-#  include ActionView::Helpers::UrlHelper
-#  include ActionController::UrlFor
-#  include Rails.application.routes.url_helpers
-#  ActionController::Base.helpers.link_to(whatever)
-#  Rails.application.routes.url_helpers.user_path(nil)
-  include Rails.application.routes.url_helpers
-
   # This context is in the spec/support folder
   include_context "with form models"
   
   before(:each) do
     _routes.draw do
-      resources :users
+      resources :projects
     end
   end
 
@@ -29,16 +21,16 @@ describe FreeForm::ViewHelper do
   end
 
   it "should pass instance of NestedForm::Builder to nested_form_for block", :failing => true do
-    _view.nested_form_for(form) do |f|
+#    _view.nested_form_for(form) do |f|
 #      f.should be_instance_of(FreeForm::Builder)
-    end
+#    end
 #    _view.nested_form_for(form, :url => user_path) do |f|
 #      f.should be_instance_of(FreeForm::Builder)
 #    end
 
-#    _view.nested_form_for(Project.new) do |f|
-#      f.should be_instance_of(NestedForm::Builder)
-#    end
+    _view.nested_form_for(Project.new) do |f|
+      f.should be_instance_of(NestedForm::Builder)
+    end
   end
 
   it "should pass instance of NestedForm::SimpleBuilder to simple_nested_form_for block" do
