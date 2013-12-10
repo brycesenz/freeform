@@ -51,53 +51,48 @@ module FreeForm
       end
     end
 
+    class DateParamsFilter
+      def call(params)
+        date_attributes = {}
+
+        params.each do |attribute, value|
+          if value.is_a?(Hash)
+            call(value) # TODO: #validate should only handle local form params.
+          elsif matches = attribute.match(/^(\w+)\(.i\)$/)
+            date_attribute = matches[1]
+            date_attributes[date_attribute] = params_to_date(
+              params.delete("#{date_attribute}(1i)"),
+              params.delete("#{date_attribute}(2i)"),
+              params.delete("#{date_attribute}(3i)")
+            )
+          end
+        end
+        params.merge!(date_attributes)
+      end
+
+    private
+      def params_to_date(year, month, day)
+        day ||= 1 # FIXME: is that really what we want? test.
+        Date.new(year.to_i, month.to_i, day.to_i) # TODO: test fails.
+      end
+    end
+
     def assign_params(params)
-      filter_dates(params)
+      DateParamsFilter.new.call(params)
       params.each_pair do |attribute, value|
-#        if (attribute.to_s == "_destroy")
-#          self.mark_for_destruction
-#        else
-          self.send :"#{attribute}=", value unless ignore?(attribute, value)
-#        end
+        self.send :"#{attribute}=", value unless ignore?(attribute, value)
       end
       self
     end
     alias_method :assign_attributes, :assign_params
     alias_method :populate, :assign_params
     alias_method :fill, :assign_params
-    
+
     def ignore?(attribute, value)
       ignored_if_blank = self.class.ignored_blank_params
       return (ignored_if_blank.include?(attribute.to_sym) && value.blank?)
     end
 
-    private
-    #TODO: This should be its own model
-    def filter_dates(params)
-      date_attributes = {}
-      params.each do |attribute, value|
-        if attribute.to_s.include?("(1i)") || attribute.to_s.include?("(2i)") || attribute.to_s.include?("(3i)")
-          date_attribute = attribute.to_s.gsub(/(\(.*\))/, "")
-          date_attributes[date_attribute.to_sym] = params_to_date(
-            params.delete("#{date_attribute}(1i)"),
-            params.delete("#{date_attribute}(2i)"),
-            params.delete("#{date_attribute}(3i)")
-          )        
-        end
-      end
-      params.merge!(date_attributes)
-    end
-    
-    def params_to_date(year, month, day)
-      day ||= 1
-      begin
-        return Date.new(year.to_i, month.to_i, day.to_i)
-      rescue => e
-        return nil
-      end
-    end
+  private
   end
-  
-  #Instance Methods
-  #----------------------------------------------------------------------------
 end

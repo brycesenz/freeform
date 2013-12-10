@@ -2,6 +2,31 @@ require "spec_helper"
 
 [FreeForm::Builder, FreeForm::SimpleBuilder, defined?(FreeForm::FormtasticBuilder) ? FreeForm::FormtasticBuilder : nil].compact.each do |builder|
   describe builder do
+    #FIXME: This should actually be based off of a FreeForm Object
+    let(:form_class) do
+      klass = Class.new(FreeForm::Form) do
+        form_input_key :project
+        form_models :project
+        allow_destroy_on_save
+        
+        property :name, :on => :project
+  
+        has_many :tasks, :class_initializer => :task_initializer do
+          form_model :task
+          allow_destroy_on_save
+          
+          property :name,    :on => :task
+        end
+      end
+      # This wrapper just avoids CONST warnings
+      v, $VERBOSE = $VERBOSE, nil
+        Module.const_set("ViewForm", klass)
+      $VERBOSE = v
+      klass
+    end
+    
+    let(:test_form) { form_class.new(:project => Project.new) }
+
     let(:project) do
       Project.new
     end
@@ -88,7 +113,7 @@ require "spec_helper"
         it "wraps nested fields each in a div with class" do
           2.times { project.tasks.build }
 
-          fields = if subject.is_a?(NestedForm::SimpleBuilder)
+          fields = if subject.is_a?(FreeForm::SimpleBuilder)
             subject.simple_fields_for(:tasks) { "Task" }
           else
             subject.fields_for(:tasks) { "Task" }

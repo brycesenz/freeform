@@ -197,7 +197,59 @@ describe FreeForm::Form do
       it "should have errors on first phone number's number" do
         form.phone_numbers.last.errors[:number].should eq(["can't be blank"])
       end
+    end
 
+    context "with valid attributes" do
+      let(:attributes) do {
+        :username => "dummyuser",
+        :email => "test@email.com",
+        :street => "1 Maple St.",
+        :city => "Portland",
+        :state => "Oregon",
+        :phone_numbers_attributes => {
+          "0" => {
+            :area_code => "555",
+            :number => "123-4567"
+          },
+          "1" => {
+            :area_code => "202",
+            :number => "876-5432"
+          }
+        } }
+      end
+      
+      before(:each) do
+        form.fill(attributes)
+      end
+      
+      it "should be valid" do
+        form.should be_valid
+      end
+    end
+  end
+
+  describe "saving and destroying", :saving => true do
+    context "with invalid attributes" do
+      let(:attributes) do {
+        :username => "dummyuser",
+        :email => "test@email.com",
+        :street => nil,
+        :city => "Portland",
+        :state => "Oregon",
+        :phone_numbers_attributes => {
+          "0" => {
+            :number => "123-4567"
+          },
+          "1" => {
+            :area_code => "202"
+          }
+        } }
+      end
+      
+      before(:each) do
+        form.fill(attributes)
+      end
+      
       it "should return false on 'save'" do
         form.save.should be_false
       end
@@ -230,10 +282,6 @@ describe FreeForm::Form do
         form.fill(attributes)
       end
       
-      it "should be valid" do
-        form.should be_valid
-      end
-
       it "should return true on 'save', and call save on other models" do
         form.user.should_receive(:save).and_return(true)
         form.address.should_receive(:save).and_return(true)

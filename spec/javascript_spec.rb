@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'FreeForm', :js => true do
+describe 'JavaScript Behavior', :js => true do
   include Capybara::DSL
 
   [:jquery, :prototype].each do |js_framework|
