@@ -12,10 +12,19 @@ class ProjectForm < FreeForm::Form
 
   has_many :tasks, :class_initializer => :task_initializer do
     form_model :task
-#    validate_models
-#    allow_destroy_on_save
+    validate_models
+    allow_destroy_on_save
     
     attr_accessor :name
 #    property :name, :on => :task
+
+
+    has_many :milestones, :class_initializer => :milestone_initializer do
+      form_model :milestone
+      validate_models
+      allow_destroy_on_save
+      
+      attr_accessor :name
+    end
   end
 end

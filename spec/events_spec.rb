@@ -3,8 +3,7 @@ require 'spec_helper'
 describe 'FreeForm', :js => true do
   include Capybara::DSL
 
-#  [:jquery, :prototype].each do |js_framework|
-  [:jquery].each do |js_framework|
+  [:jquery, :prototype].each do |js_framework|
     
     url = case js_framework
     when :jquery then '/projects/new'
