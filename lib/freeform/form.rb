@@ -36,7 +36,7 @@ module FreeForm
         if send(form_model).is_a?(Array)
           send(form_model).each { |model| return model.save }
         else
-          if marked_for_destruction?
+          if _destroy
             send(form_model).destroy
           else
             return false unless send(form_model).save
