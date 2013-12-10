@@ -54,11 +54,7 @@ module FreeForm
     def assign_params(params)
       filter_dates(params)
       params.each_pair do |attribute, value|
-        if (attribute.to_s == "_destroy")
-          self.mark_for_destruction
-        else
-          self.send :"#{attribute}=", value unless ignore?(attribute, value)
-        end
+        self.send :"#{attribute}=", value unless ignore?(attribute, value)
       end
       self
     end
