@@ -28,5 +28,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "sqlite3"
   spec.add_development_dependency "rspec"
   spec.add_development_dependency "rspec-rails", "~> 2.6"
+  spec.add_development_dependency "mocha"
+  spec.add_development_dependency "capybara", "~> 1.1"
 end
 
