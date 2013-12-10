@@ -1,11 +1,7 @@
-require 'spec_helper'
-#require 'action_view'
+require "spec_helper"
 
 describe FreeForm::ViewHelper do
-=begin
   include RSpec::Rails::HelperExampleGroup
-  # This context is in the spec/support folder
-  include_context "with form models"
   
   before(:each) do
     _routes.draw do
@@ -13,45 +9,54 @@ describe FreeForm::ViewHelper do
     end
   end
 
-  it "should pass nested form builder to form_for along with other options" do
-    pending
-    mock.proxy(_view).form_for(:first, :as => :second, :other => :arg, :builder => NestedForm::Builder) do |form_html|
-      form_html
+  let(:form_class) do
+    klass = Class.new(FreeForm::Form) do
+      form_input_key :project
+      form_models :project
+      allow_destroy_on_save
+      
+      property :name, :on => :project
+
+      has_many :tasks, :class_initializer => :task_initializer do
+        form_model :task
+        allow_destroy_on_save
+        
+        property :name,    :on => :task
+      end
     end
-    _view.nested_form_for(:first, :as => :second, :other => :arg) {"form"}
+    # This wrapper just avoids CONST warnings
+    v, $VERBOSE = $VERBOSE, nil
+      Module.const_set("ViewForm", klass)
+    $VERBOSE = v
+    klass
+  end
+  
+  let(:test_form) { form_class.new(:project => Project.new) }
+
+  it "should pass instance of FreeForm::Builder to nested_form_for block" do
+    _view.nested_form_for(test_form) do |f|
+      f.should be_instance_of(FreeForm::Builder)
+    end
   end
 
-  it "should pass instance of NestedForm::Builder to nested_form_for block", :failing => true do
-#    _view.nested_form_for(form) do |f|
-#      f.should be_instance_of(FreeForm::Builder)
-#    end
-#    _view.nested_form_for(form, :url => user_path) do |f|
-#      f.should be_instance_of(FreeForm::Builder)
-#    end
-
-    _view.nested_form_for(Project.new) do |f|
-      f.should be_instance_of(NestedForm::Builder)
+  it "should pass instance of FreeForm::SimpleBuilder to simple_nested_form_for block" do
+    _view.simple_nested_form_for(test_form) do |f|
+      f.should be_instance_of(FreeForm::SimpleBuilder)
     end
   end
 
-  it "should pass instance of NestedForm::SimpleBuilder to simple_nested_form_for block" do
-    _view.simple_nested_form_for(Project.new) do |f|
-      f.should be_instance_of(NestedForm::SimpleBuilder)
-    end
-  end
-
-  if defined?(NestedForm::FormtasticBuilder)
-    it "should pass instance of NestedForm::FormtasticBuilder to semantic_nested_form_for block" do
-      _view.semantic_nested_form_for(Project.new) do |f|
-        f.should be_instance_of(NestedForm::FormtasticBuilder)
+  if defined?(FreeForm::FormtasticBuilder)
+    it "should pass instance of FreeForm::FormtasticBuilder to semantic_nested_form_for block" do
+      _view.semantic_nested_form_for(test_form) do |f|
+        f.should be_instance_of(FreeForm::FormtasticBuilder)
       end
     end
   end
 
-  if defined?(NestedForm::FormtasticBootstrapBuilder)
-    it "should pass instance of NestedForm::FormtasticBootstrapBuilder to semantic_bootstrap_nested_form_for block" do
-      _view.semantic_bootstrap_nested_form_for(Project.new) do |f|
-        f.should be_instance_of(NestedForm::FormtasticBootstrapBuilder)
+  if defined?(FreeForm::FormtasticBootstrapBuilder)
+    it "should pass instance of FreeForm::FormtasticBootstrapBuilder to semantic_bootstrap_nested_form_for block" do
+      _view.semantic_bootstrap_nested_form_for(test_form) do |f|
+        f.should be_instance_of(FreeForm::FormtasticBootstrapBuilder)
       end
     end
   end
@@ -59,13 +64,13 @@ describe FreeForm::ViewHelper do
   it "should append content to end of nested form" do
     _view.after_nested_form(:tasks) { _view.concat("123") }
     _view.after_nested_form(:milestones) { _view.concat("456") }
-    result = _view.nested_form_for(Project.new) {}
+    result = _view.nested_form_for(test_form) {}
     result.should include("123456")
   end
 
   if Rails.version >= "3.1.0"
     it "should set multipart when there's a file field" do
-      _view.nested_form_for(Project.new) do |f|
+      _view.nested_form_for(test_form) do |f|
         f.fields_for(:tasks) do |t|
           t.file_field :file
         end
@@ -73,5 +78,4 @@ describe FreeForm::ViewHelper do
       end.should include(" enctype=\"multipart/form-data\" ")
     end
   end
-=end
 end

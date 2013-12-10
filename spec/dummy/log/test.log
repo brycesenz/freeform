@@ -1214,3 +1214,99 @@ Processing by ProjectsController#new as HTML
   Parameters: {"type"=>"prototype"}
   Rendered projects/new.html.erb within layouts/application (6.4ms)
 Completed 200 OK in 10.1ms (Views: 9.2ms | ActiveRecord: 0.0ms)
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-10 16:14:22 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 18.2ms (Views: 17.5ms | ActiveRecord: 0.0ms)
+Started GET "/assets/jquery.js" for 127.0.0.1 at 2013-12-10 16:14:23 -0500
+Served asset /jquery.js - 200 OK (5ms)
+Started GET "/assets/jquery_nested_form.js" for 127.0.0.1 at 2013-12-10 16:14:23 -0500
+Served asset /jquery_nested_form.js - 200 OK (6ms)
+Started GET "/assets/jquery_events_test.js" for 127.0.0.1 at 2013-12-10 16:14:23 -0500
+Served asset /jquery_events_test.js - 200 OK (52ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-10 16:14:23 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 5.8ms (Views: 5.4ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-10 16:14:25 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 6.3ms (Views: 5.9ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-10 16:14:26 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 9.5ms (Views: 8.9ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-10 16:14:28 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 8.1ms (Views: 7.4ms | ActiveRecord: 0.0ms)
+Started GET "/assets/prototype_nested_form.js" for 127.0.0.1 at 2013-12-10 16:14:28 -0500
+Served asset /prototype_nested_form.js - 200 OK (4ms)
+Started GET "/assets/prototype.js" for 127.0.0.1 at 2013-12-10 16:14:28 -0500
+Served asset /prototype.js - 200 OK (2ms)
+Started GET "/assets/prototype_events_test.js" for 127.0.0.1 at 2013-12-10 16:14:28 -0500
+Served asset /prototype_events_test.js - 200 OK (2ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-10 16:14:28 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 6.2ms (Views: 5.8ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-10 16:14:31 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 8.7ms (Views: 8.1ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-10 16:14:32 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 9.0ms (Views: 8.4ms | ActiveRecord: 0.0ms)
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-10 16:18:04 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 17.3ms (Views: 16.5ms | ActiveRecord: 0.0ms)
+Started GET "/assets/jquery.js" for 127.0.0.1 at 2013-12-10 16:18:04 -0500
+Served asset /jquery.js - 200 OK (55ms)
+Started GET "/assets/jquery_nested_form.js" for 127.0.0.1 at 2013-12-10 16:18:04 -0500
+Served asset /jquery_nested_form.js - 200 OK (4ms)
+Started GET "/assets/jquery_events_test.js" for 127.0.0.1 at 2013-12-10 16:18:04 -0500
+Served asset /jquery_events_test.js - 200 OK (2ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-10 16:18:05 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 9.6ms (Views: 9.0ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-10 16:18:07 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 7.5ms (Views: 6.9ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-10 16:18:07 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 7.3ms (Views: 6.9ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-10 16:18:10 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 6.7ms (Views: 6.3ms | ActiveRecord: 0.0ms)
+Started GET "/assets/prototype.js" for 127.0.0.1 at 2013-12-10 16:18:10 -0500
+Served asset /prototype.js - 200 OK (8ms)
+Started GET "/assets/prototype_nested_form.js" for 127.0.0.1 at 2013-12-10 16:18:10 -0500
+Served asset /prototype_nested_form.js - 200 OK (3ms)
+Started GET "/assets/prototype_events_test.js" for 127.0.0.1 at 2013-12-10 16:18:10 -0500
+Served asset /prototype_events_test.js - 200 OK (3ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-10 16:18:10 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 6.6ms (Views: 6.1ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-10 16:18:13 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 8.5ms (Views: 7.9ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-10 16:18:13 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 12.4ms (Views: 11.7ms | ActiveRecord: 0.0ms)
