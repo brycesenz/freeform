@@ -180,6 +180,49 @@ describe FreeForm::Property do
           form_class.ignored_blank_params.should eq([:attribute_2])
         end  
       end
+
+      describe "allow_destroy_on_save", :allow_destroy_on_save => true do
+        let(:form_class) do
+          Class.new(Module) do
+            include FreeForm::Property
+            declared_model :test_model
+            allow_destroy_on_save
+            
+            property :attribute_1, :on => :test_model
+            property :attribute_2, :on => :test_model, :ignore_blank => true
+    
+            def initialize(h={})
+              h.each {|k,v| send("#{k}=",v)}
+            end  
+          end
+        end
+    
+        let(:form) do
+          form_class.new(:test_model => OpenStruct.new)
+        end
+    
+        it "has _destroy accessor" do
+          form.should respond_to(:_destroy)
+        end
+
+        it "has marked_for_destruction? accessor" do
+          form.should respond_to(:marked_for_destruction?)
+        end
+
+        it "has destroy as false by default" do
+          form._destroy.should be_false
+        end
+
+        it "has marked_for_destruction? as false by default" do
+          form.marked_for_destruction?.should be_false
+        end
+        
+        it "can be marked for destruction" do
+          form.marked_for_destruction?.should be_false
+          form.mark_for_destruction
+          form.marked_for_destruction?.should be_true          
+        end
+      end
     end
   end
 

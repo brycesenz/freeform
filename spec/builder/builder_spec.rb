@@ -2,7 +2,6 @@ require "spec_helper"
 
 [FreeForm::Builder, FreeForm::SimpleBuilder, defined?(FreeForm::FormtasticBuilder) ? FreeForm::FormtasticBuilder : nil].compact.each do |builder|
   describe builder do
-    #FIXME: This should actually be based off of a FreeForm Object
     let(:form_class) do
       klass = Class.new(FreeForm::Form) do
         form_input_key :project
@@ -16,6 +15,13 @@ require "spec_helper"
           allow_destroy_on_save
           
           property :name,    :on => :task
+
+          has_many :milestones, :class_initializer => :milestone_initializer do
+            form_model :milestone
+            allow_destroy_on_save
+            
+            property :name,    :on => :milestone
+          end
         end
       end
       # This wrapper just avoids CONST warnings
@@ -25,11 +31,7 @@ require "spec_helper"
       klass
     end
     
-    let(:test_form) { form_class.new(:project => Project.new) }
-
-    let(:project) do
-      Project.new
-    end
+    let(:form) { form_class.new(:project => Project.new) }
 
     let(:template) do
       template = ActionView::Base.new
@@ -39,7 +41,7 @@ require "spec_helper"
 
     context "with no options", :no_options => true do
       subject do
-        builder.new(:item, project, template, {}, proc {})
+        builder.new(:item, form, template, {}, proc {})
       end
 
       describe '#link_to_add', :link_to_add => true do
@@ -70,25 +72,16 @@ require "spec_helper"
         end
 
         it 'has data-association attribute' do
-          project.tasks.build
+          form.build_task
           subject.fields_for(:tasks, :builder => builder) do |tf|
             tf.link_to_remove 'Remove'
           end.should match '<a.+data-association="tasks">Remove</a>'
         end
 
-        context 'when association is declared in a model by the class_name' do
-          it 'properly detects association name' do
-            project.assignments.build
-            subject.fields_for(:assignments, :builder => builder) do |tf|
-              tf.link_to_remove 'Remove'
-            end.should match '<a.+data-association="assignments">Remove</a>'
-          end
-        end
-
         context 'when there is more than one nested level' do
           it 'properly detects association name' do
-            task = project.tasks.build
-            task.milestones.build
+            task = form.build_task
+            task.build_milestone
             subject.fields_for(:tasks, :builder => builder) do |tf|
               tf.fields_for(:milestones, :builder => builder) do |mf|
                 mf.link_to_remove 'Remove'
@@ -96,22 +89,11 @@ require "spec_helper"
             end.should match '<a.+data-association="milestones">Remove</a>'
           end
         end
-
-        context 'has_one association' do
-          let(:company) { Company.new }
-          subject { builder.new(:item, company, template, {}, proc {}) }
-
-          it 'properly detects association name' do
-            subject.fields_for(:project, :builder => builder) do |f|
-              f.link_to_remove 'Remove'
-            end.should match '<a.+data-association="project">Remove</a>'
-          end
-        end
       end
 
       describe '#fields_for' do
         it "wraps nested fields each in a div with class" do
-          2.times { project.tasks.build }
+          2.times { form.build_task }
 
           fields = if subject.is_a?(FreeForm::SimpleBuilder)
             subject.simple_fields_for(:tasks) { "Task" }
@@ -124,14 +106,14 @@ require "spec_helper"
       end
 
       it "wraps nested fields marked for destruction with an additional class" do
-        task = project.tasks.build
+        task = form.build_task
         task.mark_for_destruction
         fields = subject.fields_for(:tasks) { 'Task' }
         fields.should eq('<div class="fields marked_for_destruction">Task</div>')
       end
 
       it "puts blueprint into data-blueprint attribute" do
-        task = project.tasks.build
+        task = form.build_task
         task.mark_for_destruction
         subject.fields_for(:tasks) { 'Task' }
         subject.link_to_add('Add', :tasks)
@@ -141,8 +123,8 @@ require "spec_helper"
       end
 
       it "adds parent association name to the blueprint div id" do
-        task = project.tasks.build
-        task.milestones.build
+        task = form.build_task
+        task.build_milestone
         subject.fields_for(:tasks, :builder => builder) do |tf|
           tf.fields_for(:milestones, :builder => builder) { 'Milestone' }
           tf.link_to_add('Add', :milestones)
@@ -152,7 +134,7 @@ require "spec_helper"
       end
 
       it "doesn't render wrapper div" do
-        task = project.tasks.build
+        task = form.build_task
         fields = subject.fields_for(:tasks, :wrapper => false) { 'Task' }
 
         fields.should eq('Task')
@@ -164,8 +146,8 @@ require "spec_helper"
       end
 
       it "doesn't render wrapper div when collection is passed" do
-        task = project.tasks.build
-        fields = subject.fields_for(:tasks, project.tasks, :wrapper => false) { 'Task' }
+        task = form.build_task
+        fields = subject.fields_for(:tasks, form.tasks, :wrapper => false) { 'Task' }
 
         fields.should eq('Task')
 
@@ -176,7 +158,7 @@ require "spec_helper"
       end
 
       it "doesn't render wrapper with nested_wrapper option" do
-        task = project.tasks.build
+        task = form.build_task
         fields = subject.fields_for(:tasks, :nested_wrapper => false) { 'Task' }
 
         fields.should eq('Task')
@@ -189,7 +171,7 @@ require "spec_helper"
     end
 
     context "with options", :with_options => true do
-      subject { builder.new(:item, project, template, {}, proc {}) }
+      subject { builder.new(:item, form, template, {}, proc {}) }
 
       context "when model_object given" do
         it "should use it instead of new generated" do
