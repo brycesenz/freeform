@@ -44,9 +44,9 @@ require "spec_helper"
 
       describe '#link_to_add', :link_to_add => true do
         it "behaves similar to a Rails link_to" do
-          subject.link_to_add("Add", :tasks).should eq('<a href="javascript:void(0)" class="add_nested_fields" data-association="tasks" data-blueprint-id="tasks_fields_blueprint">Add</a>')
-          subject.link_to_add("Add", :tasks, :class => "foo", :href => "url").should eq('<a href="url" class="foo add_nested_fields" data-association="tasks" data-blueprint-id="tasks_fields_blueprint">Add</a>')
-          subject.link_to_add(:tasks) { "Add" }.should eq('<a href="javascript:void(0)" class="add_nested_fields" data-association="tasks" data-blueprint-id="tasks_fields_blueprint">Add</a>')
+          subject.link_to_add("Add", :tasks).should eq('<a href="javascript:void(0)" class="add_nested_form" data-association="tasks" data-blueprint-id="tasks_fields_blueprint">Add</a>')
+          subject.link_to_add("Add", :tasks, :class => "foo", :href => "url").should eq('<a href="url" class="foo add_nested_form" data-association="tasks" data-blueprint-id="tasks_fields_blueprint">Add</a>')
+          subject.link_to_add(:tasks) { "Add" }.should eq('<a href="javascript:void(0)" class="add_nested_form" data-association="tasks" data-blueprint-id="tasks_fields_blueprint">Add</a>')
         end
 
         it 'raises ArgumentError when missing association is provided' do
@@ -64,9 +64,9 @@ require "spec_helper"
 
       describe '#link_to_remove', :link_to_remove => true do
         it "behaves similar to a Rails link_to" do
-          subject.link_to_remove("Remove").should eq('<input id="item__destroy" name="item[_destroy]" type="hidden" value="false" /><a href="javascript:void(0)" class="remove_nested_fields">Remove</a>')
-          subject.link_to_remove("Remove", :class => "foo", :href => "url").should eq('<input id="item__destroy" name="item[_destroy]" type="hidden" value="false" /><a href="url" class="foo remove_nested_fields">Remove</a>')
-          subject.link_to_remove { "Remove" }.should eq('<input id="item__destroy" name="item[_destroy]" type="hidden" value="false" /><a href="javascript:void(0)" class="remove_nested_fields">Remove</a>')
+          subject.link_to_remove("Remove").should eq('<input id="item__destroy" name="item[_destroy]" type="hidden" value="false" /><a href="javascript:void(0)" class="remove_nested_form">Remove</a>')
+          subject.link_to_remove("Remove", :class => "foo", :href => "url").should eq('<input id="item__destroy" name="item[_destroy]" type="hidden" value="false" /><a href="url" class="foo remove_nested_form">Remove</a>')
+          subject.link_to_remove { "Remove" }.should eq('<input id="item__destroy" name="item[_destroy]" type="hidden" value="false" /><a href="javascript:void(0)" class="remove_nested_form">Remove</a>')
         end
 
         it 'has data-association attribute' do

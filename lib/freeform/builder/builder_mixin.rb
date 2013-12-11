@@ -21,16 +21,16 @@ module FreeForm
       association = args.pop
 
       unless object.respond_to?("#{association}_attributes=")
-        raise ArgumentError, "Invalid association. Make sure that accepts_nested_attributes_for is used for #{association.inspect} association."
+        raise ArgumentError, "Invalid association. Make sure that a nested form for #{association.to_s} exists."
       end
 
-      #TODO: THis is where things are going wrong!!
+      #FIXME: I need to use the build method for child models
       model_object = options.delete(:model_object) do
         reflection = object.class.reflect_on_association(association)
         reflection.klass.new
       end
 
-      options[:class] = [options[:class], "add_nested_fields"].compact.join(" ")
+      options[:class] = [options[:class], "add_nested_form"].compact.join(" ")
       options["data-association"] = association
       options["data-blueprint-id"] = fields_blueprint_id = fields_blueprint_id_for(association)
       args << (options.delete(:href) || "javascript:void(0)")
@@ -60,7 +60,7 @@ module FreeForm
     # See the README for more details on where to call this method.
     def link_to_remove(*args, &block)
       options = args.extract_options!.symbolize_keys
-      options[:class] = [options[:class], "remove_nested_fields"].compact.join(" ")
+      options[:class] = [options[:class], "remove_nested_form"].compact.join(" ")
 
       # Extracting "milestones" from "...[milestones_attributes][...]"
       md = object_name.to_s.match(/(\w+)_attributes\](?:\[[\w\d]+\])?$/)

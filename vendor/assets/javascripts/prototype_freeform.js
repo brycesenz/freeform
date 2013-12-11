@@ -1,5 +1,5 @@
 document.observe('click', function(e, el) {
-  if (el = e.findElement('form a.add_nested_fields')) {
+  if (el = e.findElement('form a.add_nested_form')) {
     // Setup
     var assoc     = el.readAttribute('data-association');      // Name of child
     var target    = el.readAttribute('data-target');
@@ -55,7 +55,7 @@ document.observe('click', function(e, el) {
 });
 
 document.observe('click', function(e, el) {
-  if (el = e.findElement('form a.remove_nested_fields')) {
+  if (el = e.findElement('form a.remove_nested_form')) {
     var hidden_field = el.previous(0),
         assoc = el.readAttribute('data-association'); // Name of child to be removed
     if(hidden_field) {
