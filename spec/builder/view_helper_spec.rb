@@ -31,7 +31,9 @@ describe FreeForm::ViewHelper do
     klass
   end
   
-  let(:test_form) { form_class.new(:project => Project.new) }
+  let(:project) { Project.new }
+
+  let(:test_form) { form_class.new(:project => project) }
 
   it "should pass instance of FreeForm::Builder to nested_form_for block" do
     _view.nested_form_for(test_form) do |f|
