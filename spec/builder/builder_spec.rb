@@ -135,7 +135,7 @@ require "spec_helper"
         task.mark_for_destruction
         subject.fields_for(:tasks) { 'Task' }
         subject.link_to_add('Add', :tasks)
-        output   = template.send(:after_nested_form_callbacks)
+        output   = template.send(:after_freeform_callbacks)
         expected = ERB::Util.html_escape '<div class="fields">Task</div>'
         output.should match(/div.+data-blueprint="#{expected}"/)
       end
@@ -147,7 +147,7 @@ require "spec_helper"
           tf.fields_for(:milestones, :builder => builder) { 'Milestone' }
           tf.link_to_add('Add', :milestones)
         end
-        output = template.send(:after_nested_form_callbacks)
+        output = template.send(:after_freeform_callbacks)
         output.should match(/div.+id="tasks_milestones_fields_blueprint"/)
       end
 
@@ -158,7 +158,7 @@ require "spec_helper"
         fields.should eq('Task')
 
         subject.link_to_add 'Add', :tasks
-        output = template.send(:after_nested_form_callbacks)
+        output = template.send(:after_freeform_callbacks)
 
         output.should match(/div.+data-blueprint="Task"/)
       end
@@ -170,7 +170,7 @@ require "spec_helper"
         fields.should eq('Task')
 
         subject.link_to_add 'Add', :tasks
-        output = template.send(:after_nested_form_callbacks)
+        output = template.send(:after_freeform_callbacks)
 
         output.should match(/div.+data-blueprint="Task"/)
       end
@@ -182,7 +182,7 @@ require "spec_helper"
         fields.should eq('Task')
 
         subject.link_to_add 'Add', :tasks
-        output = template.send(:after_nested_form_callbacks)
+        output = template.send(:after_freeform_callbacks)
 
         output.should match(/div.+data-blueprint="Task"/)
       end
@@ -195,7 +195,7 @@ require "spec_helper"
         it "should use it instead of new generated" do
           subject.fields_for(:tasks) {|f| f.object.name }
           subject.link_to_add("Add", :tasks, :model_object => Task.new(:name => 'for check'))
-          output   = template.send(:after_nested_form_callbacks)
+          output   = template.send(:after_freeform_callbacks)
           expected = ERB::Util.html_escape '<div class="fields">for check</div>'
           output.should match(/div.+data-blueprint="#{expected}"/)
         end

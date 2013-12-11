@@ -35,44 +35,44 @@ describe FreeForm::ViewHelper do
 
   let(:test_form) { form_class.new(:project => project) }
 
-  it "should pass instance of FreeForm::Builder to nested_form_for block" do
-    _view.nested_form_for(test_form) do |f|
+  it "should pass instance of FreeForm::Builder to freeform_for block" do
+    _view.freeform_for(test_form) do |f|
       f.should be_instance_of(FreeForm::Builder)
     end
   end
 
-  it "should pass instance of FreeForm::SimpleBuilder to simple_nested_form_for block" do
-    _view.simple_nested_form_for(test_form) do |f|
+  it "should pass instance of FreeForm::SimpleBuilder to simple_freeform_for block" do
+    _view.simple_freeform_for(test_form) do |f|
       f.should be_instance_of(FreeForm::SimpleBuilder)
     end
   end
 
   if defined?(FreeForm::FormtasticBuilder)
-    it "should pass instance of FreeForm::FormtasticBuilder to semantic_nested_form_for block" do
-      _view.semantic_nested_form_for(test_form) do |f|
+    it "should pass instance of FreeForm::FormtasticBuilder to semantic_freeform_for block" do
+      _view.semantic_freeform_for(test_form) do |f|
         f.should be_instance_of(FreeForm::FormtasticBuilder)
       end
     end
   end
 
   if defined?(FreeForm::FormtasticBootstrapBuilder)
-    it "should pass instance of FreeForm::FormtasticBootstrapBuilder to semantic_bootstrap_nested_form_for block" do
-      _view.semantic_bootstrap_nested_form_for(test_form) do |f|
+    it "should pass instance of FreeForm::FormtasticBootstrapBuilder to semantic_bootstrap_freeform_for block" do
+      _view.semantic_bootstrap_freeform_for(test_form) do |f|
         f.should be_instance_of(FreeForm::FormtasticBootstrapBuilder)
       end
     end
   end
 
   it "should append content to end of nested form" do
-    _view.after_nested_form(:tasks) { _view.concat("123") }
-    _view.after_nested_form(:milestones) { _view.concat("456") }
-    result = _view.nested_form_for(test_form) {}
+    _view.after_freeform(:tasks) { _view.concat("123") }
+    _view.after_freeform(:milestones) { _view.concat("456") }
+    result = _view.freeform_for(test_form) {}
     result.should include("123456")
   end
 
   if Rails.version >= "3.1.0"
     it "should set multipart when there's a file field" do
-      _view.nested_form_for(test_form) do |f|
+      _view.freeform_for(test_form) do |f|
         f.fields_for(:tasks) do |t|
           t.file_field :file
         end
