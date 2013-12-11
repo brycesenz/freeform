@@ -22,9 +22,7 @@ module FreeForm
     # Instance Methods
     #----------------------------------------------------------------------------
     # Required for ActiveModel
-    def persisted?
-      false
-    end
+    def persisted?; false end
 
     def initialize(h={})
       h.each {|k,v| send("#{k}=",v)}
@@ -32,41 +30,33 @@ module FreeForm
     
     def save
       return false unless valid?
+
       self.class.models.each do |form_model|
-        if send(form_model).is_a?(Array)
-          send(form_model).each { |model| return model.save }
-        else
-          if _destroy
-            send(form_model).destroy
-          else
-            return false unless send(form_model).save
-          end
-        end
+        model = send(form_model)
+        model.is_a?(Array) ? model.each { |m| m.save } : save_or_destroy(model)
       end
-      return true
     end
   
     def save!
       raise FreeForm::FormInvalid, "form invalid." unless valid?
+
       self.class.models.each do |form_model|
-        if send(form_model).is_a?(Array)
-          send(form_model).each { |model| model.save! }
-        else
-          if marked_for_destruction?
-            send(form_model).destroy
-          else
-            send(form_model).save!
-          end
-        end
+        model = send(form_model)
+        model.is_a?(Array) ? model.each { |m| m.save! } : save_or_destroy!(model)
       end
     end    
     
+  private
+    def save_or_destroy(model)
+      marked_for_destruction? ? model.destroy : model.save
+    end
+    
+    def save_or_destroy!(model)
+      marked_for_destruction? ? model.destroy : model.save!
+    end
+
     def marked_for_destruction?
-      if self.respond_to?(:_destroy)
-        return self._destroy
-      else
-        return false
-      end
+      respond_to?(:_destroy) ? _destroy : false
     end
   end
 end

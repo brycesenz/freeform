@@ -9,11 +9,12 @@ module FreeForm
     module ClassMethods
       # Nested Forms
       #------------------------------------------------------------------------
-      attr_accessor :nested_forms      
+      attr_accessor :nested_forms
 
       def nested_form(attribute, options={}, &block)
         # Specify the class method on which we're defining the initializer for this form.
         parent_class = self
+
         initializer_method = options[:class_initializer]
         unless initializer_method.nil?
           define_singleton_method(:"#{initializer_method}") do
