@@ -1,9 +1,5 @@
-require 'nested_form/builders'
-
 module FreeForm
   module BuilderMixin
-    include NestedForm::BuilderMixin
-
     # Adds a link to insert a new associated records. The first argument is the name of the link, the second is the name of the association.
     #
     # f.link_to_add("Add Task", :tasks)
@@ -74,6 +70,43 @@ module FreeForm
       args << (options.delete(:href) || "javascript:void(0)")
       args << options
       hidden_field(:_destroy) << @template.link_to(*args, &block)
+    end
+
+    def fields_for_with_nested_attributes(association_name, *args)
+      # TODO Test this better
+      block = args.pop || Proc.new { |fields| @template.render(:partial => "#{association_name.to_s.singularize}_fields", :locals => {:f => fields}) }
+
+      options = args.dup.extract_options!
+
+      # Rails 3.0.x
+      if options.empty? && args[0].kind_of?(Array)
+        options = args[0].dup.extract_options!
+      end
+
+      @fields ||= {}
+      @fields[fields_blueprint_id_for(association_name)] = { :block => block, :options => options }
+      super(association_name, *(args << block))
+    end
+
+    def fields_for_nested_model(name, object, options, block)
+      classes = 'fields'
+      classes << ' marked_for_destruction' if object.respond_to?(:marked_for_destruction?) && object.marked_for_destruction?
+
+      perform_wrap   = options.fetch(:nested_wrapper, true)
+      perform_wrap &&= options[:wrapper] != false # wrap even if nil
+
+      if perform_wrap
+        @template.content_tag(:div, super, :class => classes)
+      else
+        super
+      end
+    end
+
+  private
+    def fields_blueprint_id_for(association)
+      assocs = object_name.to_s.scan(/(\w+)_attributes/).map(&:first)
+      assocs << association
+      assocs.join('_') + '_fields_blueprint'
     end
   end
 end

@@ -63,7 +63,7 @@ describe FreeForm::ViewHelper do
     end
   end
 
-  it "should append content to end of nested form" do
+  it "should append content to end of freeform" do
     _view.after_freeform(:tasks) { _view.concat("123") }
     _view.after_freeform(:milestones) { _view.concat("456") }
     result = _view.freeform_for(test_form) {}
