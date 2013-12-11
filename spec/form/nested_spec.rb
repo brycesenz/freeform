@@ -60,20 +60,9 @@ describe FreeForm::Nested do
         address_1.should_not eq(address_2)
       end
 
-      it "builds initialized models through reflection on association" do
-        form_class.mailing_address_initializer = lambda { { :address => Module.new } } 
-        klass = form_class.reflect_on_association(:mailing_addresses).klass
-        klass.new.address.should be_a(Module)
-      end
-
       it "allows nested_forms to be built with custom initializers" do
         form.build_mailing_address(:address => OpenStruct.new(:street => "1600 Pennsylvania Ave."))
         form.mailing_addresses.first.street.should eq("1600 Pennsylvania Ave.")
-      end
-
-      it "reflects on association" do
-        reflection = form_class.reflect_on_association(:mailing_addresses)
-        reflection.klass.should eq(Module::DummyForm::MailingAddressesForm)
       end
     end
     

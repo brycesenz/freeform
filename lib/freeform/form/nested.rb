@@ -66,14 +66,6 @@ module FreeForm
       alias_method :has_many, :nested_form
       alias_method :has_one, :nested_form
 
-      # Supporting Methods
-      #------------------------------------------------------------------------
-      def reflect_on_association(key, *args)
-        reflection = OpenStruct.new
-        reflection.klass = self.nested_forms[key]
-        reflection
-      end
-
       protected
       # Defining Helper Methods For Models
       #------------------------------------------------------------------------

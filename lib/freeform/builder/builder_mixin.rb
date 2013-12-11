@@ -26,8 +26,7 @@ module FreeForm
 
       #FIXME: I need to use the build method for child models
       model_object = options.delete(:model_object) do
-        reflection = object.class.reflect_on_association(association)
-        reflection.klass.new
+        object.send("build_#{association.to_s.singularize}")
       end
 
       options[:class] = [options[:class], "add_nested_form"].compact.join(" ")
