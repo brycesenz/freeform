@@ -211,7 +211,7 @@ describe FreeForm::Property do
             form.test_model.attribute_1.should eq("changed")
           end  
 
-          it "delegates using :as", :failing => true do
+          it "delegates using :as" do
             form.test_attribute_3.should be_nil
             form.test_attribute_3 = "set_using_as"
             form.test_attribute_3.should eq("set_using_as") 
@@ -219,9 +219,14 @@ describe FreeForm::Property do
           end  
         end
         
-        describe "ignoring blank fields" do
-          it "tracks ignored blank fields" do
-            form_class.ignored_blank_params.should eq([:attribute_2])
+        describe "property_mappings" do
+          it "sets appropriate property mappings" do
+            form_class.property_mappings.should eq(
+            { :attribute_1 => {:model => :test_model, :field => :attribute_1, :ignore_blank => false},
+              :attribute_2 => {:model => :test_model, :field => :attribute_2, :ignore_blank => true},
+              :test_attribute_3 => {:model => :test_model, :field => :attribute_3, :ignore_blank => false}
+            }
+            )
           end  
         end
       end

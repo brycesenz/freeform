@@ -44,8 +44,9 @@ module FreeForm
 
       # Properties
       #------------------------------------------------------------------------
-      def ignored_blank_params
-        @ignored_blank_params ||= []
+      def property_mappings
+        # Take the form of {:property => {:model => model, :field => field, :ignore_blank => false}}
+        @property_mappings ||= Hash.new
       end
 
       def allow_destroy_on_save
@@ -58,24 +59,23 @@ module FreeForm
       end
 
       def property(attribute, options={})
-        if options[:on]
-          if options[:as]
-            define_method("#{options[:as]}") do
-              send(options[:on]).send("#{attribute}")
-            end
+        @property_mappings ||= Hash.new
+        model = options[:on] ? options [:on] : :self
+        field = options[:as] ? options[:as] : attribute.to_sym
+        ignore_blank = options[:ignore_blank] ? options[:ignore_blank] : false
+        @property_mappings.merge!({field => {:model => model, :field => attribute.to_sym, :ignore_blank => ignore_blank}})
 
-            define_method("#{options[:as]}=") do |value|
-              send(options[:on]).send("#{attribute}=", value)
-            end
-          else
-            def_delegator options[:on], attribute
-            def_delegator options[:on], "#{attribute}=".to_sym
-          end
-        else
+        if model == :self
           attr_accessor attribute
+        else
+          define_method("#{field}") do
+            send("#{model}").send("#{attribute}")
+          end
+
+          define_method("#{field}=") do |value|
+            send("#{model}").send("#{attribute}=", value)
+          end
         end
-        @ignored_blank_params ||= []
-        @ignored_blank_params << attribute if options[:ignore_blank]
       end
     end
 
@@ -108,7 +108,7 @@ module FreeForm
     def assign_params(params)
       DateParamsFilter.new.call(params)
       params.each_pair do |attribute, value|
-        self.send :"#{attribute}=", value unless ignore?(attribute, value)
+        assign_attribute(attribute, value)
       end
       self
     end
@@ -116,11 +116,15 @@ module FreeForm
     alias_method :populate, :assign_params
     alias_method :fill, :assign_params
 
-    def ignore?(attribute, value)
-      ignored_if_blank = self.class.ignored_blank_params
-      return (ignored_if_blank.include?(attribute.to_sym) && value.blank?)
-    end
 
   private
+    def assign_attribute(attribute, value)
+      self.send :"#{attribute}=", value unless ignore?(attribute, value)      
+    end
+
+    def ignore?(attribute, value)
+      mapping = self.class.property_mappings[attribute.to_sym]
+      return (mapping[:ignore_blank] && value.blank?) unless mapping.nil?
+    end
   end
 end

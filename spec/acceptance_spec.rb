@@ -166,8 +166,7 @@ describe FreeForm::Form do
       end
 
       it "should have errors on project name" do
-        pending
-#        form.errors[:project_name].should eq(["can't be blank"])
+        form.errors[:project_name].should eq(["can't be blank"])
       end
 
       it "should have errors on last tasks's start_date" do

@@ -1,7 +1,4 @@
 require 'spec_helper'
-require 'freeform/form/property'
-require 'freeform/form/nested'
-require 'freeform/form/validation'
 
 describe FreeForm::Validation do
   let(:user) do
