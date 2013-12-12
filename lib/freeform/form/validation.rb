@@ -45,6 +45,7 @@ module FreeForm
       model = send(form_model)
       model.valid?
       model.errors.each do |error, message| 
+        puts "Error = #{error}, Message = #{message}"
         self.errors.add(find_form_field_from_model_field(form_model, error), message)
       end
     end
