@@ -24,6 +24,10 @@ describe FreeForm::Form do
         property :start_date,    :on => :task
         property :end_date,      :on => :task
       end
+      
+      def task_initializer
+        { :task => project.tasks.build }
+      end
     end
     # This wrapper just avoids CONST warnings
     v, $VERBOSE = $VERBOSE, nil
