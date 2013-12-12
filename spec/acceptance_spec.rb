@@ -1,74 +1,28 @@
 require 'spec_helper'
 
 describe FreeForm::Form do
-  let(:user_class) do
-    Class.new(Module) do
-      include ActiveModel::Validations
-      def self.model_name; ActiveModel::Name.new(self, nil, "user") end
-
-      attr_accessor :username
-      attr_accessor :email
-      validates :username, :presence => true
-
-      def save; return valid? end
-      alias_method :save!, :save
-      def destroy; return true end
-    end
-  end
-
-  let(:address_class) do
-    Class.new(Module) do
-      include ActiveModel::Validations
-      def self.model_name; ActiveModel::Name.new(self, nil, "address") end
-
-      attr_accessor :street
-      attr_accessor :city
-      attr_accessor :state
-      validates :street, :presence => true
-      validates :city, :presence => true
-      validates :state, :presence => true
-
-      def save; return valid? end
-      alias_method :save!, :save
-      def destroy; return true end
-    end
-  end
-
-  let(:phone_class) do
-    Class.new(Module) do
-      include ActiveModel::Validations
-      def self.model_name; ActiveModel::Name.new(self, nil, "phone") end
-
-      attr_accessor :area_code
-      attr_accessor :number
-      validates :number, :presence => true
-
-      def save; return valid? end
-      alias_method :save!, :save
-      def destroy; return true end
-    end
-  end
-
   let(:form_class) do
     klass = Class.new(FreeForm::Form) do
-      form_input_key :user
-      form_models :user, :address
+      form_input_key :company
+      form_models :company
+      child_model :project do
+        company.project.present? ? company.project : company.build_project
+      end
       validate_models
       allow_destroy_on_save
       
-      property :username, :on => :user      
-      property :email,    :on => :user
-      property :street, :on => :address      
-      property :city,   :on => :address      
-      property :state,  :on => :address      
+      property :name,     :on => :company, :as => :company_name
+      property :name,     :on => :project, :as => :project_name
+      property :due_date, :on => :project
 
-      has_many :phone_numbers, :class_initializer => :phone_number_initializer do
-        form_model :phone
+      has_many :tasks, :class_initializer => :task_initializer do
+        form_model :task
         validate_models
         allow_destroy_on_save
         
-        property :area_code, :on => :phone
-        property :number,    :on => :phone
+        property :name,          :on => :task
+        property :start_date,    :on => :task
+        property :end_date,      :on => :task
       end
     end
     # This wrapper just avoids CONST warnings
@@ -79,57 +33,61 @@ describe FreeForm::Form do
   end
 
   let(:form) do
-    form_class.phone_number_initializer = lambda { {:phone => phone_class.new} }
-    form_model = form_class.new( :user => user_class.new, :address => address_class.new)
-    form_model.build_phone_number
-    form_model
+    form_class.task_initializer = lambda { {:task => Task.new} }
+    f = form_class.new( :company => Company.new )
+    f.build_task
+    f
   end
   
   describe "form initialization", :initialization => true do
-    it "initializes with user model" do
-      form.user.should be_a(user_class)
+    it "initializes with Company model" do
+      form.company.should be_a(Company)
     end
 
-    it "initializes with address model" do
-      form.address.should be_a(address_class)
+    it "initializes with Project model" do
+      form.project.should be_a(Project)
     end
 
-    it "initializes with phone model" do
-      form.phone_numbers.first.phone.should be_a(phone_class)
+    it "initializes with Task model" do
+      form.tasks.first.task.should be_a(Task)
     end
   end
 
   describe "building nested models", :nested_models => true do
-    it "can build multiple phone_numbers" do
-      form.phone_numbers.count.should eq(1)
-      form.build_phone_number
-      form.build_phone_number
-      form.phone_numbers.count.should eq(3)
+    it "can build multiple tasks" do
+      form.tasks.count.should eq(1)
+      form.build_task
+      form.build_task
+      form.tasks.count.should eq(3)
     end
 
-    it "build new models for each phone numbers" do
-      form.build_phone_number
-      phone_1 = form.phone_numbers.first.phone
-      phone_2 = form.phone_numbers.last.phone
-      phone_1.should_not eq(phone_2)
+    it "build new models for each task" do
+      form.build_task
+      task_1 = form.tasks.first.task
+      task_2 = form.tasks.last.task
+      task_1.should_not eq(task_2)
     end
   end
 
   describe "assigning parameters", :assign_params => true do
     let(:attributes) do {
-      :username => "dummyuser",
-      :email => "test@email.com",
-      :street => "1 Maple St.",
-      :city => "Portland",
-      :state => "Oregon",
-      :phone_numbers_attributes => {
+      :company_name => "dummycorp",
+      :project_name => "railsapp",
+      "due_date(1i)" => "2014",
+      "due_date(2i)" => "10",
+      "due_date(3i)" => "30",
+      :tasks_attributes => {
         "0" => {
-          :area_code => "555",
-          :number => "123-4567"
+          :name => "task_1",
+          "start_date(1i)" => "2012",
+          "start_date(2i)" => "1",
+          "start_date(3i)" => "2",
         },
         "1" => {
-          :area_code => "202",
-          :number => "876-5432"
+          :name => "task_2",
+          "end_date(1i)" => "2011",
+          "end_date(2i)" => "12",
+          "end_date(3i)" => "15",
         }
       } }
     end
@@ -138,41 +96,62 @@ describe FreeForm::Form do
       form.fill(attributes)
     end
     
-    it "assigns username" do
-      form.username.should eq("dummyuser")
+    it "assigns company name" do
+      form.company_name.should eq("dummycorp")
+      form.company.name.should eq("dummycorp")
     end
 
-    it "assigns street" do
-      form.street.should eq("1 Maple St.")
+    it "assigns project name" do
+      form.project_name.should eq("railsapp")
+      form.project.name.should eq("railsapp")
     end
 
-    it "assigns phone number area code" do
-      form.phone_numbers.first.phone.area_code.should eq("555")
+    it "assigns project due date" do
+      form.due_date.should eq(Date.new(2014, 10, 30))
+      form.project.due_date.should eq(Date.new(2014, 10, 30))
     end
 
-    it "builds new phone number automatically" do
-      form.phone_numbers.count.should eq(2)
+    it "builds new task automatically" do
+      form.tasks.count.should eq(2)
     end
 
-    it "assigns second phone number area code" do
-      form.phone_numbers.last.phone.area_code.should eq("202")
+    it "assigns first task name" do
+      form.tasks.first.task.name.should eq("task_1")
+    end
+
+    it "assigns first task start_date" do
+      form.tasks.first.task.start_date.should eq(Date.new(2012, 1, 2))
+    end
+
+    it "assigns second task name" do
+      form.tasks.last.task.name.should eq("task_2")
+    end
+
+    it "assigns second task end_date" do
+      form.tasks.last.task.end_date.should eq(Date.new(2011, 12, 15))
     end
   end
 
   describe "validations", :validations => true do
     context "with invalid attributes" do
       let(:attributes) do {
-        :username => "dummyuser",
-        :email => "test@email.com",
-        :street => nil,
-        :city => "Portland",
-        :state => "Oregon",
-        :phone_numbers_attributes => {
+        :company_name => "dummycorp",
+        :project_name => nil,
+        "due_date(1i)" => "2014",
+        "due_date(2i)" => "10",
+        "due_date(3i)" => "30",
+        :tasks_attributes => {
           "0" => {
-            :number => "123-4567"
+            :name => "task_1",
+            "start_date(1i)" => "2012",
+            "start_date(2i)" => "1",
+            "start_date(3i)" => "2",
           },
           "1" => {
-            :area_code => "202"
+            :name => "task_2",
+            "end_date(1i)" => "2011",
+            "end_date(2i)" => "12",
+            "end_date(3i)" => "15",
           }
         } }
       end
@@ -186,34 +165,38 @@ describe FreeForm::Form do
         form.should_not be_valid
       end
 
-      it "should have errors on street" do
-        form.errors[:street].should eq(["can't be blank"])
+      it "should have errors on project name" do
+        pending
+#        form.errors[:project_name].should eq(["can't be blank"])
       end
 
-      it "should have errors on first phone number's area code" do
-        form.phone_numbers.first.errors[:area_code].should be_empty
-      end
-
-      it "should have errors on first phone number's number" do
-        form.phone_numbers.last.errors[:number].should eq(["can't be blank"])
+      it "should have errors on last tasks's start_date" do
+        form.tasks.last.errors[:start_date].should eq(["can't be blank"])
       end
     end
 
     context "with valid attributes" do
       let(:attributes) do {
-        :username => "dummyuser",
-        :email => "test@email.com",
-        :street => "1 Maple St.",
-        :city => "Portland",
-        :state => "Oregon",
-        :phone_numbers_attributes => {
+        :company_name => "dummycorp",
+        :project_name => "railsapp",
+        "due_date(1i)" => "2014",
+        "due_date(2i)" => "10",
+        "due_date(3i)" => "30",
+        :tasks_attributes => {
           "0" => {
-            :area_code => "555",
-            :number => "123-4567"
+            :name => "task_1",
+            "start_date(1i)" => "2012",
+            "start_date(2i)" => "1",
+            "start_date(3i)" => "2",
           },
           "1" => {
-            :area_code => "202",
-            :number => "876-5432"
+            :name => "task_2",
+            "start_date(1i)" => "2011",
+            "start_date(2i)" => "8",
+            "start_date(3i)" => "15",
+            "end_date(1i)" => "2011",
+            "end_date(2i)" => "12",
+            "end_date(3i)" => "15",
           }
         } }
       end
@@ -231,17 +214,23 @@ describe FreeForm::Form do
   describe "saving and destroying", :saving => true do
     context "with invalid attributes" do
       let(:attributes) do {
-        :username => "dummyuser",
-        :email => "test@email.com",
-        :street => nil,
-        :city => "Portland",
-        :state => "Oregon",
-        :phone_numbers_attributes => {
+        :company_name => "dummycorp",
+        :project_name => nil,
+        "due_date(1i)" => "2014",
+        "due_date(2i)" => "10",
+        "due_date(3i)" => "30",
+        :tasks_attributes => {
           "0" => {
-            :number => "123-4567"
+            :name => "task_1",
+            "start_date(1i)" => "2012",
+            "start_date(2i)" => "1",
+            "start_date(3i)" => "2",
           },
           "1" => {
-            :area_code => "202"
+            :name => "task_2",
+            "end_date(1i)" => "2011",
+            "end_date(2i)" => "12",
+            "end_date(3i)" => "15",
           }
         } }
       end
@@ -261,19 +250,26 @@ describe FreeForm::Form do
 
     context "with valid attributes" do
       let(:attributes) do {
-        :username => "dummyuser",
-        :email => "test@email.com",
-        :street => "1 Maple St.",
-        :city => "Portland",
-        :state => "Oregon",
-        :phone_numbers_attributes => {
+        :company_name => "dummycorp",
+        :project_name => "railsapp",
+        "due_date(1i)" => "2014",
+        "due_date(2i)" => "10",
+        "due_date(3i)" => "30",
+        :tasks_attributes => {
           "0" => {
-            :area_code => "555",
-            :number => "123-4567"
+            :name => "task_1",
+            "start_date(1i)" => "2012",
+            "start_date(2i)" => "1",
+            "start_date(3i)" => "2",
           },
           "1" => {
-            :area_code => "202",
-            :number => "876-5432"
+            :name => "task_2",
+            "start_date(1i)" => "2011",
+            "start_date(2i)" => "8",
+            "start_date(3i)" => "15",
+            "end_date(1i)" => "2011",
+            "end_date(2i)" => "12",
+            "end_date(3i)" => "15",
           }
         } }
       end
@@ -283,42 +279,47 @@ describe FreeForm::Form do
       end
       
       it "should return true on 'save', and call save on other models" do
-        form.user.should_receive(:save).and_return(true)
-        form.address.should_receive(:save).and_return(true)
-        form.phone_numbers.first.phone.should_receive(:save).and_return(true)
+        form.company.should_receive(:save).and_return(true)
+        form.project.should_receive(:save).and_return(true)
+        form.tasks.first.task.should_receive(:save).and_return(true)
+        form.tasks.last.task.should_receive(:save).and_return(true)
         form.save
       end
 
       it "should return true on 'save!', and call save! on other models" do
-        form.user.should_receive(:save!).and_return(true)
-        form.address.should_receive(:save!).and_return(true)
-        form.phone_numbers.first.phone.should_receive(:save!).and_return(true)
+        form.company.should_receive(:save!).and_return(true)
+        form.project.should_receive(:save!).and_return(true)
+        form.tasks.first.task.should_receive(:save!).and_return(true)
+        form.tasks.last.task.should_receive(:save!).and_return(true)
         form.save!
       end
-      
+
       describe "destroying on save", :destroy_on_save => true do
         describe "save" do
           it "destroys models on save if set" do
             form._destroy = true
-            form.user.should_receive(:destroy).and_return(true)
-            form.address.should_receive(:destroy).and_return(true)
-            form.phone_numbers.first.phone.should_receive(:save).and_return(true)
+            form.company.should_receive(:destroy).and_return(true)
+            form.project.should_receive(:destroy).and_return(true)
+            form.tasks.first.task.should_receive(:save).and_return(true)
+            form.tasks.last.task.should_receive(:save).and_return(true)
             form.save
           end
     
           it "destroys models on save if set through attribute" do
             form.fill({:_destroy => "1"})
-            form.user.should_receive(:destroy).and_return(true)
-            form.address.should_receive(:destroy).and_return(true)
-            form.phone_numbers.first.phone.should_receive(:save).and_return(true)
+            form.company.should_receive(:destroy).and_return(true)
+            form.project.should_receive(:destroy).and_return(true)
+            form.tasks.first.task.should_receive(:save).and_return(true)
+            form.tasks.last.task.should_receive(:save).and_return(true)
             form.save
           end
 
           it "destroys nested models on save if set" do
-            form.phone_numbers.first._destroy = true
-            form.user.should_receive(:save).and_return(true)
-            form.address.should_receive(:save).and_return(true)
-            form.phone_numbers.first.phone.should_receive(:destroy).and_return(true)
+            form.tasks.first._destroy = true
+            form.company.should_receive(:save).and_return(true)
+            form.project.should_receive(:save).and_return(true)
+            form.tasks.first.task.should_receive(:destroy).and_return(true)
+            form.tasks.last.task.should_receive(:save).and_return(true)
             form.save
           end
         end
@@ -326,25 +327,28 @@ describe FreeForm::Form do
         describe "save!" do
           it "destroys models on save! if set" do
             form._destroy = true
-            form.user.should_receive(:destroy).and_return(true)
-            form.address.should_receive(:destroy).and_return(true)
-            form.phone_numbers.first.phone.should_receive(:save!).and_return(true)
+            form.company.should_receive(:destroy).and_return(true)
+            form.project.should_receive(:destroy).and_return(true)
+            form.tasks.first.task.should_receive(:save!).and_return(true)
+            form.tasks.last.task.should_receive(:save!).and_return(true)
             form.save!
           end
   
           it "destroys models on save! if set" do
             form.fill({:_destroy => "1"})
-            form.user.should_receive(:destroy).and_return(true)
-            form.address.should_receive(:destroy).and_return(true)
-            form.phone_numbers.first.phone.should_receive(:save!).and_return(true)
+            form.company.should_receive(:destroy).and_return(true)
+            form.project.should_receive(:destroy).and_return(true)
+            form.tasks.first.task.should_receive(:save!).and_return(true)
+            form.tasks.last.task.should_receive(:save!).and_return(true)
             form.save!
           end
 
           it "destroys nested models on save! if set" do
-            form.phone_numbers.first._destroy = true
-            form.user.should_receive(:save!).and_return(true)
-            form.address.should_receive(:save!).and_return(true)
-            form.phone_numbers.first.phone.should_receive(:destroy).and_return(true)
+            form.tasks.last._destroy = true
+            form.company.should_receive(:save!).and_return(true)
+            form.project.should_receive(:save!).and_return(true)
+            form.tasks.first.task.should_receive(:save!).and_return(true)
+            form.tasks.last.task.should_receive(:destroy).and_return(true)
             form.save!
           end
         end

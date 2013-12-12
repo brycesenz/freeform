@@ -185,6 +185,7 @@ describe FreeForm::Property do
             
             property :attribute_1, :on => :test_model
             property :attribute_2, :on => :test_model, :ignore_blank => true
+            property :attribute_3, :as => :test_attribute_3, :on => :test_model
     
             def initialize(h={})
               h.each {|k,v| send("#{k}=",v)}
@@ -198,20 +199,31 @@ describe FreeForm::Property do
           )
         end
     
-        it "delegates properties to models" do
-          form.attribute_1.should eq("yes")
-          form.attribute_2.should be_nil
-        end  
-  
-        it "allows properties to be written, and delegates the values" do
-          form.attribute_1 = "changed"
-          form.attribute_1.should eq("changed")
-          form.test_model.attribute_1.should eq("changed")
-        end  
-  
-        it "tracks ignored blank fields" do
-          form_class.ignored_blank_params.should eq([:attribute_2])
-        end  
+        describe "delegation" do
+          it "delegates properties to models" do
+            form.attribute_1.should eq("yes")
+            form.attribute_2.should be_nil
+          end  
+    
+          it "allows properties to be written, and delegates the values" do
+            form.attribute_1 = "changed"
+            form.attribute_1.should eq("changed")
+            form.test_model.attribute_1.should eq("changed")
+          end  
+
+          it "delegates using :as", :failing => true do
+            form.test_attribute_3.should be_nil
+            form.test_attribute_3 = "set_using_as"
+            form.test_attribute_3.should eq("set_using_as") 
+            form.test_model.attribute_3.should eq("set_using_as")
+          end  
+        end
+        
+        describe "ignoring blank fields" do
+          it "tracks ignored blank fields" do
+            form_class.ignored_blank_params.should eq([:attribute_2])
+          end  
+        end
       end
 
       describe "allow_destroy_on_save", :allow_destroy_on_save => true do

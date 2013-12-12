@@ -59,8 +59,18 @@ module FreeForm
 
       def property(attribute, options={})
         if options[:on]
-          def_delegator options[:on], attribute
-          def_delegator options[:on], "#{attribute}=".to_sym
+          if options[:as]
+            define_method("#{options[:as]}") do
+              send(options[:on]).send("#{attribute}")
+            end
+
+            define_method("#{options[:as]}=") do |value|
+              send(options[:on]).send("#{attribute}=", value)
+            end
+          else
+            def_delegator options[:on], attribute
+            def_delegator options[:on], "#{attribute}=".to_sym
+          end
         else
           attr_accessor attribute
         end

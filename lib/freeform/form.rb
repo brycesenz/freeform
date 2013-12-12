@@ -26,6 +26,7 @@ module FreeForm
 
     def initialize(h={})
       h.each {|k,v| send("#{k}=",v)}
+      initialize_child_models      
     end  
     
     def save
@@ -47,6 +48,12 @@ module FreeForm
     end    
     
   private
+    def initialize_child_models
+      self.class.child_models.each do |c|
+        send("initialize_#{c}")
+      end      
+    end
+
     def save_or_destroy(model)
       marked_for_destruction? ? model.destroy : model.save
     end

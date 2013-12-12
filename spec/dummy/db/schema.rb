@@ -30,11 +30,14 @@ ActiveRecord::Schema.define(:version => 20110710143903) do
   create_table "projects", :force => true do |t|
     t.integer "company_id"
     t.string  "name"
+    t.date    "due_date"
   end
 
   create_table "tasks", :force => true do |t|
     t.integer "project_id"
     t.string  "name"
+    t.date    "start_date"
+    t.date    "end_date"
   end
 
 end
