@@ -7,11 +7,14 @@ class InitialTables < ActiveRecord::Migration
     create_table :projects do |t|
       t.integer :company_id
       t.string :name
+      t.date :due_date
     end
 
     create_table :tasks do |t|
       t.integer :project_id
       t.string :name
+      t.date :start_date
+      t.date :end_date
     end
 
     create_table :milestones do |t|

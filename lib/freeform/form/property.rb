@@ -13,6 +13,10 @@ module FreeForm
         @models ||= []
       end
 
+      def child_models
+        @child_models ||= []
+      end
+
       def declared_model(name, opts={})
         @models ||= []
         @models << name        
@@ -26,6 +30,17 @@ module FreeForm
         end
       end
       alias_method :form_models, :declared_models
+
+      def child_model(name, opts={}, &block)
+        @models ||= []
+        @models << name        
+        @child_models ||= []
+        @child_models << name        
+        attr_accessor name
+        define_method("initialize_#{name}") do
+          instance_variable_set("@#{name}", instance_eval(&block))
+        end
+      end
 
       # Properties
       #------------------------------------------------------------------------

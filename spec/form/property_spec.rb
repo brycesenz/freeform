@@ -141,6 +141,39 @@ describe FreeForm::Property do
           form_class.models.should eq([:test_model_1, :test_model_2])
         end
       end
+
+      describe "child models", :child_models => true do
+        let(:form_class) do
+          Class.new(Module) do
+            include FreeForm::Property
+            form_model :test_model_1
+            child_model :test_model_2 do
+              test_model_1.build_child
+            end
+    
+            def initialize(h={})
+              h.each {|k,v| send("#{k}=",v)}
+              initialize_test_model_2
+            end  
+          end
+        end
+    
+        let(:form) do
+          form_class.new(
+            :test_model_1 => OpenStruct.new(:dummy => "yes", 
+              :build_child => OpenStruct.new(:field => "child model"))
+          )
+        end
+    
+        it "sets declared models as accessor" do
+          form.test_model_1.should eq(OpenStruct.new(:dummy => "yes", :build_child => OpenStruct.new(:field => "child model")))
+          form.test_model_2.should eq(OpenStruct.new(:field => "child model"))
+        end
+    
+        it "sets @models in class to declared models" do
+          form_class.models.should eq([:test_model_1, :test_model_2])
+        end
+      end
     end
     
     describe "properties", :properties => true do
