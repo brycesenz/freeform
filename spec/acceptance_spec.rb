@@ -5,7 +5,7 @@ describe FreeForm::Form do
     klass = Class.new(FreeForm::Form) do
       form_input_key :company
       form_models :company
-      child_model :project do
+      child_model :project do 
         company.project.present? ? company.project : company.build_project
       end
       validate_models
@@ -15,7 +15,7 @@ describe FreeForm::Form do
       property :name,     :on => :project, :as => :project_name
       property :due_date, :on => :project
 
-      has_many :tasks, :class_initializer => :task_initializer do
+      has_many :tasks, :default_initializer => :default_task_initializer do
         form_model :task
         validate_models
         allow_destroy_on_save
@@ -25,8 +25,8 @@ describe FreeForm::Form do
         property :end_date,      :on => :task
       end
       
-      def task_initializer
-        { :task => project.tasks.build }
+      def default_task_initializer
+        { :task => Task.new(:project => project) }
       end
     end
     # This wrapper just avoids CONST warnings
@@ -37,7 +37,6 @@ describe FreeForm::Form do
   end
 
   let(:form) do
-    form_class.task_initializer = lambda { {:task => Task.new} }
     f = form_class.new( :company => Company.new )
     f.build_task
     f
@@ -54,6 +53,11 @@ describe FreeForm::Form do
 
     it "initializes with Task model" do
       form.tasks.first.task.should be_a(Task)
+    end
+
+    it "initializes with Task with project parent", :failing => true do
+      task = form.tasks.first.task
+      task.project.should eq(form.project)
     end
   end
 
@@ -206,7 +210,7 @@ describe FreeForm::Form do
         form.valid?
       end
       
-      it "should be invalid", :failing => true do
+      it "should be invalid" do
         form.should_not be_valid
       end
 

@@ -1,30 +1,26 @@
 class ProjectForm < FreeForm::Form
   form_input_key :project
-  form_models :project
-#  validate_models
-#  allow_destroy_on_save
-  
+  form_models :project  
   property :name, :on => :project      
-#  property :email,    :on => :user
-#  property :street, :on => :address      
-#  property :city,   :on => :address      
-#  property :state,  :on => :address      
 
-  has_many :tasks, :class_initializer => :task_initializer do
-    form_model :task
-    validate_models
-    allow_destroy_on_save
-    
-    attr_accessor :name
-#    property :name, :on => :task
+  has_many :tasks, :default_initializer => :task_initializer do
+    form_model :task    
+    property :name, :on => :task
 
-
-    has_many :milestones, :class_initializer => :milestone_initializer do
+    has_many :milestones, :default_initializer => :milestone_initializer do
       form_model :milestone
       validate_models
       allow_destroy_on_save
       
-      attr_accessor :name
+      property :name, :on => :milestone
     end
+
+    def milestone_initializer
+      { :milestone => Milestone.new }
+    end
+  end
+  
+  def task_initializer
+    { :task => Task.new }
   end
 end

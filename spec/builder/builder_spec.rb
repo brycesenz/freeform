@@ -10,18 +10,26 @@ require "spec_helper"
         
         property :name, :on => :project
   
-        has_many :tasks, :class_initializer => :task_initializer do
+        has_many :tasks, :default_initializer => :task_initializer do
           form_model :task
           allow_destroy_on_save
           
           property :name,    :on => :task
 
-          has_many :milestones, :class_initializer => :milestone_initializer do
+          has_many :milestones, :default_initializer => :milestone_initializer do
             form_model :milestone
             allow_destroy_on_save
             
             property :name,    :on => :milestone
           end
+
+          def milestone_initializer
+            {:milestone => Milestone.new}
+          end
+        end
+        
+        def task_initializer
+          {:task => Task.new}
         end
       end
       # This wrapper just avoids CONST warnings

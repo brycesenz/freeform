@@ -5774,3 +5774,147 @@ Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 09:56:31 
 Processing by ProjectsController#new as HTML
   Parameters: {"type"=>"prototype"}
 Completed 200 OK in 6.7ms (Views: 6.1ms | ActiveRecord: 0.0ms)
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+  [1m[36mProject Load (32.8ms)[0m  [1mSELECT "projects".* FROM "projects" WHERE "projects"."id" = 1 LIMIT 1[0m
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 12:33:06 -0500
+Processing by ProjectsController#new as HTML
+Completed 500 Internal Server Error in 64.6ms
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 12:33:08 -0500
+Processing by ProjectsController#new as HTML
+Completed 500 Internal Server Error in 8.7ms
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 12:33:11 -0500
+Processing by ProjectsController#new as HTML
+Completed 500 Internal Server Error in 5.7ms
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 12:33:13 -0500
+Processing by ProjectsController#new as HTML
+Completed 500 Internal Server Error in 4.6ms
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 12:33:15 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 500 Internal Server Error in 5.6ms
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 12:33:17 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 500 Internal Server Error in 6.1ms
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 12:33:19 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 500 Internal Server Error in 6.4ms
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 12:33:21 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 500 Internal Server Error in 5.8ms
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 12:38:13 -0500
+Processing by ProjectsController#new as HTML
+  Rendered projects/new.html.erb within layouts/application (55.8ms)
+Completed 500 Internal Server Error in 110.3ms
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 12:38:15 -0500
+Processing by ProjectsController#new as HTML
+  Rendered projects/new.html.erb within layouts/application (4.4ms)
+Completed 500 Internal Server Error in 5.4ms
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 12:38:17 -0500
+Processing by ProjectsController#new as HTML
+  Rendered projects/new.html.erb within layouts/application (7.6ms)
+Completed 500 Internal Server Error in 8.9ms
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 12:38:19 -0500
+Processing by ProjectsController#new as HTML
+  Rendered projects/new.html.erb within layouts/application (4.4ms)
+Completed 500 Internal Server Error in 5.5ms
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 12:38:22 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+  Rendered projects/new.html.erb within layouts/application (5.0ms)
+Completed 500 Internal Server Error in 6.4ms
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 12:38:24 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+  Rendered projects/new.html.erb within layouts/application (7.2ms)
+Completed 500 Internal Server Error in 9.1ms
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 12:38:26 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+  Rendered projects/new.html.erb within layouts/application (6.7ms)
+Completed 500 Internal Server Error in 8.1ms
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 12:38:28 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+  Rendered projects/new.html.erb within layouts/application (5.1ms)
+Completed 500 Internal Server Error in 6.5ms

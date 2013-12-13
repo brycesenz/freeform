@@ -15,19 +15,6 @@ module FreeForm
         # Specify the class method on which we're defining the initializer for this form.
         parent_class = self
 
-        initializer_method = options[:class_initializer]
-        unless initializer_method.nil?
-          define_singleton_method(:"#{initializer_method}") do
-            var = instance_variable_get(:"@#{initializer_method}")
-            var ||= {}
-            var
-          end
-  
-          define_singleton_method(:"#{initializer_method}=") do |val|
-            instance_variable_set(:"@#{initializer_method}", val)
-          end
-        end
-
         # Define an attr_accessor for the parent class to hold this attribute
         declared_model(attribute)
 
@@ -35,22 +22,6 @@ module FreeForm
         nested_form_class = Class.new(FreeForm::Form) do
           include FreeForm::Property
           self.instance_eval(&block)
-          
-          define_singleton_method(:default_initializer) do
-            unless initializer_method.nil?
-              method = parent_class.send(initializer_method)
-              if method.is_a? Proc
-                method.call
-              else
-                method
-              end
-            end
-          end
-
-          def initialize(p={}, *args)
-            p = self.class.default_initializer.merge(p)
-            super(p, *args)
-          end
         end
         self.const_set("#{attribute.to_s.camelize}Form", nested_form_class)
 
@@ -58,7 +29,7 @@ module FreeForm
         @nested_forms.merge!({:"#{attribute}" => nested_form_class})
 
         # Defined other methods
-        define_nested_model_methods(attribute, nested_form_class)
+        define_nested_model_methods(attribute, nested_form_class, options)
 
         # Setup Handling for nested attributes
         define_nested_attribute_methods(attribute, nested_form_class)
@@ -69,7 +40,7 @@ module FreeForm
       protected
       # Defining Helper Methods For Models
       #------------------------------------------------------------------------
-      def define_nested_model_methods(attribute, form_class)
+      def define_nested_model_methods(attribute, form_class, options={})
         singularized_attribute = attribute.to_s.singularize.to_s
 
         # Example: form.addresses will return all nested address forms 
@@ -78,9 +49,15 @@ module FreeForm
         end
         
         # Example: form.build_addresses (optional custom initializer)
-        define_method(:"build_#{attribute}") do |initializer={}|
+        define_method(:"build_#{attribute}") do |initializer=nil|
+          # Builder object
+          parent_object = self
+          
           # Get correct class
           form_class = self.class.nested_forms[:"#{attribute}"]
+          
+          # Initializer
+          initializer ||= instance_eval(&options[:default_initializer])
 
           # Build new model
           form_model = form_class.new(initializer)

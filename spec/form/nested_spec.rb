@@ -9,7 +9,7 @@ describe FreeForm::Nested do
         include FreeForm::Property
         include FreeForm::Nested
         
-        has_many :mailing_addresses, :class_initializer => :mailing_address_initializer do 
+        has_many :mailing_addresses, :default_initializer => :mailing_address_initializer do 
           declared_model :address
           
           property :street, :on => :address            
@@ -18,6 +18,10 @@ describe FreeForm::Nested do
         def initialize(h={})
           h.each {|k,v| send("#{k}=",v)}
         end  
+        
+        def mailing_address_initializer
+          { :address => OpenStruct.new(:id => Random.new.rand(1000000)) }
+        end
       end
       # This wrapper just avoids CONST warnings
       v, $VERBOSE = $VERBOSE, nil
@@ -27,7 +31,6 @@ describe FreeForm::Nested do
     end
 
     let(:form) do
-      form_class.mailing_address_initializer = lambda { { :address => OpenStruct.new } } 
       form_model = form_class.new
     end
 
@@ -50,8 +53,6 @@ describe FreeForm::Nested do
       end
 
       it "builds unique models" do
-        # Using module here, since they initialize uniquely
-        form_class.mailing_address_initializer = lambda { { :address => Module.new } } 
         form = form_class.new
         form.build_mailing_address
         form.build_mailing_address
