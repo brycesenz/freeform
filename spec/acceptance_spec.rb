@@ -178,6 +178,43 @@ describe FreeForm::Form do
       end
     end
 
+    context "with invalid nested model only" do
+      let(:attributes) do {
+        :company_name => "dummycorp",
+        :project_name => "rails app",
+        "due_date(1i)" => "2014",
+        "due_date(2i)" => "10",
+        "due_date(3i)" => "30",
+        :tasks_attributes => {
+          "0" => {
+            :name => "task_1",
+            "start_date(1i)" => "2012",
+            "start_date(2i)" => "1",
+            "start_date(3i)" => "2",
+          },
+          "1" => {
+            :name => "task_2",
+            "end_date(1i)" => "2011",
+            "end_date(2i)" => "12",
+            "end_date(3i)" => "15",
+          }
+        } }
+      end
+      
+      before(:each) do
+        form.fill(attributes)
+        form.valid?
+      end
+      
+      it "should be invalid", :failing => true do
+        form.should_not be_valid
+      end
+
+      it "should have errors on last tasks's start_date" do
+        form.tasks.last.errors[:start_date].should eq(["can't be blank"])
+      end
+    end
+
     context "with valid attributes" do
       let(:attributes) do {
         :company_name => "dummycorp",

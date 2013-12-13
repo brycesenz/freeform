@@ -13,17 +13,15 @@ module FreeForm
       
   protected
     def model_validity
-      form_validity = true
       self.class.models.each do |form_model|                
         if send(form_model).is_a?(Array)
           # If it's an array, we're dealing with nested forms
-          form_validity = false unless validate_nested_forms(send(form_model))
+          errors.add(:base, "has invalid nested forms") unless validate_nested_forms(send(form_model))
         else
           # Otherwise, validate the form object
-          form_validity = false unless validate_form_model(form_model)
+          validate_form_model(form_model)
         end
       end
-      return form_validity
     end
   
   private
