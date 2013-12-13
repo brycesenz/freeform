@@ -1,5 +1,5 @@
 require "spec_helper"
-=begin
+
 [FreeForm::Builder, FreeForm::SimpleBuilder, defined?(FreeForm::FormtasticBuilder) ? FreeForm::FormtasticBuilder : nil].compact.each do |builder|
   describe builder do
     let!(:milestone_form_class) do
@@ -213,4 +213,3 @@ require "spec_helper"
     end
   end
 end
-=end
