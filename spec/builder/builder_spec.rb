@@ -1,7 +1,43 @@
 require "spec_helper"
-
+=begin
 [FreeForm::Builder, FreeForm::SimpleBuilder, defined?(FreeForm::FormtasticBuilder) ? FreeForm::FormtasticBuilder : nil].compact.each do |builder|
   describe builder do
+    let!(:milestone_form_class) do
+      klass = Class.new(FreeForm::Form) do
+        form_input_key :milestone
+        form_models :milestone
+        allow_destroy_on_save
+        
+        property :name, :on => :milestone  
+      end
+      # This wrapper just avoids CONST warnings
+      v, $VERBOSE = $VERBOSE, nil
+        Module.const_set("MilestoneForm", klass)
+      $VERBOSE = v
+      klass
+    end
+
+    let!(:task_form_class) do
+      klass = Class.new(FreeForm::Form) do
+        form_input_key :task
+        form_models :task
+        allow_destroy_on_save
+        
+        property :name, :on => :task
+  
+        has_many :milestones, :class => Module::MilestoneForm, :default_initializer => :milestone_initializer
+
+        def milestone_initializer
+          {:milestone => Milestone.new}
+        end
+      end
+      # This wrapper just avoids CONST warnings
+      v, $VERBOSE = $VERBOSE, nil
+        Module.const_set("TaskForm", klass)
+      $VERBOSE = v
+      klass
+    end
+
     let(:form_class) do
       klass = Class.new(FreeForm::Form) do
         form_input_key :project
@@ -10,26 +46,10 @@ require "spec_helper"
         
         property :name, :on => :project
   
-        has_many :tasks, :default_initializer => :task_initializer do
-          form_model :task
-          allow_destroy_on_save
-          
-          property :name,    :on => :task
-
-          has_many :milestones, :default_initializer => :milestone_initializer do
-            form_model :milestone
-            allow_destroy_on_save
-            
-            property :name,    :on => :milestone
-          end
-        end
+        has_many :tasks, :class => Module::TaskForm, :default_initializer => :task_initializer
         
         def task_initializer
           {:task => Task.new}
-        end
-
-        def milestone_initializer
-          {:milestone => Milestone.new}
         end
       end
       # This wrapper just avoids CONST warnings
@@ -193,3 +213,4 @@ require "spec_helper"
     end
   end
 end
+=end

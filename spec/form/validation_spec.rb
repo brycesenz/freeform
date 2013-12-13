@@ -32,24 +32,39 @@ describe FreeForm::Validation do
 
   describe "validation", :validation => true do    
     context "without model validation", :no_model_validation => true do
+      let!(:nested_class) do
+        klass = Class.new(Module) do
+          include ActiveModel::Validations
+          include FreeForm::Property
+          include FreeForm::Nested
+          include FreeForm::Validation
+          declared_model :address          
+          property :street, :on => :address
+
+          def initialize(h={})
+            h.each {|k,v| send("#{k}=",v)}
+          end  
+        end
+        # This wrapper just avoids CONST warnings
+        v, $VERBOSE = $VERBOSE, nil
+          Module.const_set("AddressForm", klass)
+        $VERBOSE = v
+        klass
+      end
+
       let(:form_class) do
         klass = Class.new(Module) do
           include ActiveModel::Validations
           include FreeForm::Property
           include FreeForm::Nested
           include FreeForm::Validation
-
           form_model :user
           property :username, :on => :user
           validates :username, :presence => true
           
-          nested_form :addresses, :class_initializer => :address_initializer do
-            declared_model :address
-            
-            property :street, :on => :address
-          end
+          nested_form :addresses, :class => Module::AddressForm, :default_initializer => :address_initializer
           
-          def self.address_initializer
+          def address_initializer
             {:address => OpenStruct.new}
           end
           
@@ -86,32 +101,43 @@ describe FreeForm::Validation do
     end
 
     context "with model validation", :model_validation => true do
+      let!(:nested_class) do
+        klass = Class.new(Module) do
+          include ActiveModel::Validations
+          include FreeForm::Property
+          include FreeForm::Nested
+          include FreeForm::Validation
+          declared_model :address          
+          validate_models
+          property :street, :on => :address
+
+          def initialize(h={})
+            h.each {|k,v| send("#{k}=",v)}
+          end  
+        end
+        # This wrapper just avoids CONST warnings
+        v, $VERBOSE = $VERBOSE, nil
+          Module.const_set("AddressForm", klass)
+        $VERBOSE = v
+        klass
+      end
+
       let(:form_class) do
         klass = Class.new(Module) do
           include ActiveModel::Validations
           include FreeForm::Property
           include FreeForm::Nested
           include FreeForm::Validation
-          validate_models
-
           form_model :user
+          validate_models
           property :username, :on => :user
           property :form_property
+
           validates :form_property, :presence => true
           
-          nested_form :addresses, :class_initializer => :address_initializer do
-            include ActiveModel::Validations
-            include FreeForm::Property
-            include FreeForm::Nested
-            include FreeForm::Validation
-            validate_models
-            declared_model :address
-            
-            property :street, :on => :address
-            property :city, :on => :address
-          end
+          nested_form :addresses, :class => Module::AddressForm, :default_initializer => :address_initializer
           
-          def self.address_initializer
+          def address_initializer
             {:address => OpenStruct.new}
           end
           

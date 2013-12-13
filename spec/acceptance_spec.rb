@@ -1,6 +1,24 @@
 require 'spec_helper'
 
 describe FreeForm::Form do
+  let!(:task_class) do
+    klass = Class.new(FreeForm::Form) do
+      form_input_key :task
+      form_model :task
+      validate_models
+      allow_destroy_on_save
+      
+      property :name,          :on => :task
+      property :start_date,    :on => :task
+      property :end_date,      :on => :task
+    end
+    # This wrapper just avoids CONST warnings
+    v, $VERBOSE = $VERBOSE, nil
+      Module.const_set("TaskForm", klass)
+    $VERBOSE = v
+    klass
+  end
+
   let(:form_class) do
     klass = Class.new(FreeForm::Form) do
       form_input_key :company
@@ -15,15 +33,7 @@ describe FreeForm::Form do
       property :name,     :on => :project, :as => :project_name
       property :due_date, :on => :project
 
-      has_many :tasks, :default_initializer => :default_task_initializer do
-        form_model :task
-        validate_models
-        allow_destroy_on_save
-        
-        property :name,          :on => :task
-        property :start_date,    :on => :task
-        property :end_date,      :on => :task
-      end
+      has_many :tasks, :class => Module::TaskForm, :default_initializer => :default_task_initializer
       
       def default_task_initializer
         { :task => Task.new(:project => project) }

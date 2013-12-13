@@ -6106,3 +6106,124 @@ Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 14:29:11 
 Processing by ProjectsController#new as HTML
   Parameters: {"type"=>"prototype"}
 Completed 200 OK in 6.4ms (Views: 6.0ms | ActiveRecord: 0.0ms)
+Connecting to database specified by database.yml
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 15:38:24 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 17.3ms (Views: 16.6ms | ActiveRecord: 0.0ms)
+Started GET "/assets/jquery.js" for 127.0.0.1 at 2013-12-13 15:38:25 -0500
+Served asset /jquery.js - 200 OK (80ms)
+Started GET "/assets/jquery_freeform.js" for 127.0.0.1 at 2013-12-13 15:38:25 -0500
+Served asset /jquery_freeform.js - 200 OK (5ms)
+Started GET "/assets/jquery_events_test.js" for 127.0.0.1 at 2013-12-13 15:38:25 -0500
+Served asset /jquery_events_test.js - 200 OK (3ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 15:38:25 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 9.8ms (Views: 9.2ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 15:38:28 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 10.0ms (Views: 9.4ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 15:38:28 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 9.2ms (Views: 8.8ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 15:38:31 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 9.5ms (Views: 9.1ms | ActiveRecord: 0.0ms)
+Started GET "/assets/prototype.js" for 127.0.0.1 at 2013-12-13 15:38:31 -0500
+Served asset /prototype.js - 200 OK (57ms)
+Started GET "/assets/prototype_freeform.js" for 127.0.0.1 at 2013-12-13 15:38:31 -0500
+Served asset /prototype_freeform.js - 200 OK (3ms)
+Started GET "/assets/prototype_events_test.js" for 127.0.0.1 at 2013-12-13 15:38:31 -0500
+Served asset /prototype_events_test.js - 200 OK (2ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 15:38:31 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 6.7ms (Views: 6.2ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 15:38:33 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 6.3ms (Views: 5.9ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 15:38:34 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 6.9ms (Views: 6.5ms | ActiveRecord: 0.0ms)
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 15:42:43 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 19.1ms (Views: 18.2ms | ActiveRecord: 0.0ms)
+Started GET "/assets/jquery.js" for 127.0.0.1 at 2013-12-13 15:42:44 -0500
+Served asset /jquery.js - 200 OK (59ms)
+Started GET "/assets/jquery_freeform.js" for 127.0.0.1 at 2013-12-13 15:42:44 -0500
+Served asset /jquery_freeform.js - 200 OK (4ms)
+Started GET "/assets/jquery_events_test.js" for 127.0.0.1 at 2013-12-13 15:42:44 -0500
+Served asset /jquery_events_test.js - 200 OK (5ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 15:42:44 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 6.8ms (Views: 6.4ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 15:42:46 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 7.6ms (Views: 7.1ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 15:42:47 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 6.8ms (Views: 6.4ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 15:42:49 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 7.0ms (Views: 6.4ms | ActiveRecord: 0.0ms)
+Started GET "/assets/prototype_freeform.js" for 127.0.0.1 at 2013-12-13 15:42:49 -0500
+Served asset /prototype_freeform.js - 200 OK (2ms)
+Started GET "/assets/prototype.js" for 127.0.0.1 at 2013-12-13 15:42:49 -0500
+Served asset /prototype.js - 200 OK (51ms)
+Started GET "/assets/prototype_events_test.js" for 127.0.0.1 at 2013-12-13 15:42:49 -0500
+Served asset /prototype_events_test.js - 200 OK (3ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 15:42:50 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 7.2ms (Views: 6.8ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 15:42:52 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 6.3ms (Views: 5.9ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 15:42:52 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 6.5ms (Views: 6.1ms | ActiveRecord: 0.0ms)
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml

@@ -9,6 +9,21 @@ describe FreeForm::ViewHelper do
     end
   end
 
+  let!(:task_form_class) do
+    klass = Class.new(FreeForm::Form) do
+      form_input_key :task
+      form_model :task
+      allow_destroy_on_save
+        
+      property :name,    :on => :task
+    end
+    # This wrapper just avoids CONST warnings
+    v, $VERBOSE = $VERBOSE, nil
+      Module.const_set("TaskForm", klass)
+    $VERBOSE = v
+    klass
+  end
+
   let(:form_class) do
     klass = Class.new(FreeForm::Form) do
       form_input_key :project
@@ -17,12 +32,7 @@ describe FreeForm::ViewHelper do
       
       property :name, :on => :project
 
-      has_many :tasks, :default_initializer => :task_initializer do
-        form_model :task
-        allow_destroy_on_save
-        
-        property :name,    :on => :task
-      end
+      has_many :tasks, :class => Module::TaskForm, :default_initializer => :task_initializer
       
       def task_initializer
         {:task => Task.new}

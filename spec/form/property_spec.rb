@@ -277,6 +277,41 @@ describe FreeForm::Property do
   end
 
   describe "instance methods", :instance_methods => true do
+    describe "parent_form", :parent_form => true do
+      let(:form_class) do
+        Class.new(Module) do
+          include FreeForm::Property
+          declared_model :first_model
+          declared_model :second_model
+          
+          property :attribute_1, :on => :first_model
+          property :attribute_2, :on => :first_model, :ignore_blank => true
+          property :attribute_3, :on => :second_model, :ignore_blank => true
+          property :attribute_4, :on => :second_model
+  
+          def initialize(h)
+            h.each {|k,v| send("#{k}=",v)}
+          end
+        end
+      end
+  
+      let(:form) do
+        form_class.new(
+          :first_model  => OpenStruct.new(:attribute_1 => "first", :attribute_2 => "second"),
+          :second_model => OpenStruct.new(:attribute_3 => "third", :attribute_4 => "fourth"),
+        )
+      end
+      
+      it "has parent_form as nil by default" do
+        form.parent_form.should be_nil
+      end
+      
+      it "has can assign and reference parent_form" do
+        parent = Module.new
+        form.parent_form = parent
+        form.parent_form.should eq(parent)
+      end
+    end
     describe "assign_attributes", :assign_attributes => true do
       let(:form_class) do
         Class.new(Module) do

@@ -79,6 +79,8 @@ module FreeForm
       end
     end
 
+    attr_accessor :parent_form
+
     class DateParamsFilter
       def call(params)
         date_attributes = {}
@@ -115,7 +117,6 @@ module FreeForm
     alias_method :assign_attributes, :assign_params
     alias_method :populate, :assign_params
     alias_method :fill, :assign_params
-
 
   private
     def assign_attribute(attribute, value)

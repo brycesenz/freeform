@@ -1,5 +1,3 @@
-require 'freeform/form/property'
-
 module FreeForm
   module Nested
     def self.included(base)
@@ -11,21 +9,13 @@ module FreeForm
       #------------------------------------------------------------------------
       attr_accessor :nested_forms
 
-      def nested_form(attribute, options={}, &block)
-        # Specify the class method on which we're defining the initializer for this form.
-        parent_class = self
+      def nested_form(attribute, options={})
+        nested_form_class = options[:class]
+        @nested_forms ||= {}
+        @nested_forms.merge!({:"#{attribute}" => nested_form_class})
 
         # Define an attr_accessor for the parent class to hold this attribute
         declared_model(attribute)
-
-        # Define the new class, and set it up with a new name
-        nested_form_class = Class.new(parent_class) do
-          self.instance_eval(&block)
-        end
-        self.const_set("#{attribute.to_s.camelize}Form", nested_form_class)
-
-        @nested_forms ||= {}
-        @nested_forms.merge!({:"#{attribute}" => nested_form_class})
 
         # Defined other methods
         define_nested_model_methods(attribute, nested_form_class, options)
@@ -55,8 +45,11 @@ module FreeForm
           # Get correct class
           form_class = self.class.nested_forms[:"#{attribute}"]
           
-          # Initializer
-          initializer ||= instance_eval(&options[:default_initializer])
+          # Default Initializer
+          if options[:default_initializer]
+            initializer ||= instance_eval(&options[:default_initializer])
+          end
+          initializer ||= {}
 
           # Build new model
           form_model = form_class.new(initializer)
