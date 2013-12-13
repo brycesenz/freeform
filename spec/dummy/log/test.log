@@ -6244,3 +6244,93 @@ Connecting to database specified by database.yml
 Connecting to database specified by database.yml
 Connecting to database specified by database.yml
 Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 16:39:04 -0500
+Processing by ProjectsController#new as HTML
+  Rendered projects/new.html.erb within layouts/application (18.9ms)
+Completed 200 OK in 73.9ms (Views: 67.9ms | ActiveRecord: 0.8ms)
+Started GET "/assets/jquery.js" for 127.0.0.1 at 2013-12-13 16:39:04 -0500
+Served asset /jquery.js - 200 OK (10ms)
+Started GET "/assets/jquery_freeform.js" for 127.0.0.1 at 2013-12-13 16:39:04 -0500
+Served asset /jquery_freeform.js - 200 OK (2ms)
+Started GET "/assets/jquery_events_test.js" for 127.0.0.1 at 2013-12-13 16:39:04 -0500
+Served asset /jquery_events_test.js - 200 OK (40ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 16:39:04 -0500
+Processing by ProjectsController#new as HTML
+  Rendered projects/new.html.erb within layouts/application (4.5ms)
+Completed 200 OK in 6.4ms (Views: 6.0ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 16:39:06 -0500
+Processing by ProjectsController#new as HTML
+  Rendered projects/new.html.erb within layouts/application (5.9ms)
+Completed 200 OK in 8.6ms (Views: 8.0ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 16:39:07 -0500
+Processing by ProjectsController#new as HTML
+  Rendered projects/new.html.erb within layouts/application (5.1ms)
+Completed 200 OK in 7.2ms (Views: 6.8ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 16:39:09 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+  Rendered projects/new.html.erb within layouts/application (6.1ms)
+Completed 200 OK in 8.6ms (Views: 8.2ms | ActiveRecord: 0.0ms)
+Started GET "/assets/prototype_freeform.js" for 127.0.0.1 at 2013-12-13 16:39:09 -0500
+Served asset /prototype_freeform.js - 200 OK (4ms)
+Started GET "/assets/prototype.js" for 127.0.0.1 at 2013-12-13 16:39:09 -0500
+Served asset /prototype.js - 200 OK (4ms)
+Started GET "/assets/prototype_events_test.js" for 127.0.0.1 at 2013-12-13 16:39:09 -0500
+Served asset /prototype_events_test.js - 200 OK (2ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 16:39:10 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+  Rendered projects/new.html.erb within layouts/application (5.3ms)
+Completed 200 OK in 7.4ms (Views: 7.0ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 16:39:12 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+  Rendered projects/new.html.erb within layouts/application (7.5ms)
+Completed 200 OK in 10.0ms (Views: 9.4ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 16:39:12 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+  Rendered projects/new.html.erb within layouts/application (5.7ms)
+Completed 200 OK in 8.0ms (Views: 7.5ms | ActiveRecord: 0.0ms)
+Connecting to database specified by database.yml
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 16:39:30 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 19.6ms (Views: 18.9ms | ActiveRecord: 0.0ms)
+Started GET "/assets/jquery.js" for 127.0.0.1 at 2013-12-13 16:39:30 -0500
+Served asset /jquery.js - 200 OK (11ms)
+Started GET "/assets/jquery_freeform.js" for 127.0.0.1 at 2013-12-13 16:39:30 -0500
+Served asset /jquery_freeform.js - 200 OK (6ms)
+Started GET "/assets/jquery_events_test.js" for 127.0.0.1 at 2013-12-13 16:39:30 -0500
+Served asset /jquery_events_test.js - 200 OK (4ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 16:39:30 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 8.6ms (Views: 7.8ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 16:39:33 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 10.1ms (Views: 9.6ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new" for 127.0.0.1 at 2013-12-13 16:39:33 -0500
+Processing by ProjectsController#new as HTML
+Completed 200 OK in 7.6ms (Views: 7.1ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 16:39:36 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 9.1ms (Views: 8.5ms | ActiveRecord: 0.0ms)
+Started GET "/assets/prototype.js" for 127.0.0.1 at 2013-12-13 16:39:36 -0500
+Served asset /prototype.js - 200 OK (8ms)
+Started GET "/assets/prototype_freeform.js" for 127.0.0.1 at 2013-12-13 16:39:36 -0500
+Served asset /prototype_freeform.js - 200 OK (2ms)
+Started GET "/assets/prototype_events_test.js" for 127.0.0.1 at 2013-12-13 16:39:36 -0500
+Served asset /prototype_events_test.js - 200 OK (2ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 16:39:36 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 8.8ms (Views: 8.3ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 16:39:38 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 6.0ms (Views: 5.6ms | ActiveRecord: 0.0ms)
+Started GET "/projects/new?type=prototype" for 127.0.0.1 at 2013-12-13 16:39:39 -0500
+Processing by ProjectsController#new as HTML
+  Parameters: {"type"=>"prototype"}
+Completed 200 OK in 8.0ms (Views: 7.6ms | ActiveRecord: 0.0ms)
