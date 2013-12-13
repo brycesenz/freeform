@@ -14,13 +14,13 @@ class ProjectForm < FreeForm::Form
       
       property :name, :on => :milestone
     end
-
-    def milestone_initializer
-      { :milestone => Milestone.new }
-    end
   end
   
   def task_initializer
     { :task => Task.new }
+  end
+
+  def milestone_initializer
+    { :milestone => Milestone.new }
   end
 end

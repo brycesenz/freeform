@@ -22,14 +22,14 @@ require "spec_helper"
             
             property :name,    :on => :milestone
           end
-
-          def milestone_initializer
-            {:milestone => Milestone.new}
-          end
         end
         
         def task_initializer
           {:task => Task.new}
+        end
+
+        def milestone_initializer
+          {:milestone => Milestone.new}
         end
       end
       # This wrapper just avoids CONST warnings

@@ -19,8 +19,7 @@ module FreeForm
         declared_model(attribute)
 
         # Define the new class, and set it up with a new name
-        nested_form_class = Class.new(FreeForm::Form) do
-          include FreeForm::Property
+        nested_form_class = Class.new(parent_class) do
           self.instance_eval(&block)
         end
         self.const_set("#{attribute.to_s.camelize}Form", nested_form_class)

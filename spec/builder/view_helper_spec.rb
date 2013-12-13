@@ -17,11 +17,15 @@ describe FreeForm::ViewHelper do
       
       property :name, :on => :project
 
-      has_many :tasks, :class_initializer => :task_initializer do
+      has_many :tasks, :default_initializer => :task_initializer do
         form_model :task
         allow_destroy_on_save
         
         property :name,    :on => :task
+      end
+      
+      def task_initializer
+        {:task => Task.new}
       end
     end
     # This wrapper just avoids CONST warnings
