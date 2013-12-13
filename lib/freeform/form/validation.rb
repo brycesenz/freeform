@@ -45,9 +45,9 @@ module FreeForm
       model = send(form_model)
       model.valid?
       model.errors.each do |error, message| 
-#        puts "Form Model = #{form_model}, Error = #{error}, Message = #{message}"
-#        puts "Mappings = #{self.class.property_mappings.inspect}"
-        self.errors.add(find_form_field_from_model_field(form_model, error), message)
+        if find_form_field_from_model_field(form_model, error)
+          self.errors.add(find_form_field_from_model_field(form_model, error), message)
+        end
       end
     end
     
@@ -57,6 +57,7 @@ module FreeForm
           return property
         end
       end
+      return false
     end
   end
 end
