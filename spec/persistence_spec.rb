@@ -36,7 +36,7 @@ describe FreeForm::Form do
       has_many :tasks, :class => Module::TaskForm, :default_initializer => :default_task_initializer
       
       def default_task_initializer
-        { :task => Task.new(:project => project) }
+        { :task => project.tasks.build }
       end
     end
     # This wrapper just avoids CONST warnings
@@ -331,13 +331,13 @@ describe FreeForm::Form do
         "due_date(3i)" => "30",
         :tasks_attributes => {
           "0" => {
-            :name => "task_1",
+            :name => "new_task_1",
             "start_date(1i)" => "2012",
             "start_date(2i)" => "1",
             "start_date(3i)" => "2",
           },
           "1" => {
-            :name => "task_2",
+            :name => "new_task_2",
             "start_date(1i)" => "2011",
             "start_date(2i)" => "8",
             "start_date(3i)" => "15",
@@ -353,7 +353,7 @@ describe FreeForm::Form do
       end
       
       describe "save", :save => true do
-        describe "model calls" do
+        describe "without destroy" do
           it "should return true on 'save', and call save on other models" do
             form.company.should_receive(:save).and_return(true)
             form.project.should_receive(:save).and_return(true)
@@ -362,6 +362,37 @@ describe FreeForm::Form do
             form.save
           end
           
+          describe "value assignment and persistence" do
+            before(:each) { form.save }
+
+            it "assign company values" do
+              company.reload
+              company.name.should eq("dummycorp")
+            end
+            
+            it "assigns project values" do
+              project.reload
+              project.name.should eq("railsapp")
+              project.due_date.should eq(Date.new(2014, 10, 30))
+            end
+
+            it "assigns task_1 values" do
+              task_1.reload
+              task_1.name.should eq("new_task_1")
+              task_1.start_date.should eq(Date.new(2012, 1, 2))
+              task_1.end_date.should eq(Date.new(2014, 3, 3))
+            end
+
+            it "assigns task_1 values" do
+              task_2.reload
+              task_2.name.should eq("new_task_2")
+              task_2.start_date.should eq(Date.new(2011, 8, 15))
+              task_2.end_date.should eq(Date.new(2011, 12, 15))
+            end
+          end
+        end
+        
+        describe "with destroy" do          
           it "destroys models on save if set" do
             form._destroy = true
             form.company.should_receive(:destroy).and_return(true)
@@ -379,24 +410,76 @@ describe FreeForm::Form do
             form.tasks.last.task.should_receive(:save).and_return(true)
             form.save
           end
-  
+
+          describe "value assignment and persistence" do
+            before(:each) { form._destroy = true }
+            before(:each) { form.save }
+
+            it "destroys company" do
+              expect { company.reload }.to raise_error
+            end
+            
+            it "destroys project" do
+              expect { project.reload }.to raise_error
+            end
+
+            it "assigns task_1 values" do
+              task_1.reload
+              task_1.name.should eq("new_task_1")
+              task_1.start_date.should eq(Date.new(2012, 1, 2))
+              task_1.end_date.should eq(Date.new(2014, 3, 3))
+            end
+
+            it "assigns task_1 values" do
+              task_2.reload
+              task_2.name.should eq("new_task_2")
+              task_2.start_date.should eq(Date.new(2011, 8, 15))
+              task_2.end_date.should eq(Date.new(2011, 12, 15))
+            end
+          end
+        end
+        
+        describe "with nested destroy" do  
+          before(:each) { form.tasks.first._destroy = true }
+
           it "destroys nested models on save if set" do
-            form.tasks.first._destroy = true
             form.company.should_receive(:save).and_return(true)
             form.project.should_receive(:save).and_return(true)
             form.tasks.first.task.should_receive(:destroy).and_return(true)
             form.tasks.last.task.should_receive(:save).and_return(true)
             form.save
           end
-          
-          it "correctly assigns all values" do
-            pending
+                    
+          describe "value assignment and persistence" do
+            before(:each) { form.save }
+
+            it "assign company values" do
+              company.reload
+              company.name.should eq("dummycorp")
+            end
+            
+            it "assigns project values" do
+              project.reload
+              project.name.should eq("railsapp")
+              project.due_date.should eq(Date.new(2014, 10, 30))
+            end
+
+            it "destroys task_1" do
+              expect { task_1.reload }.to raise_error
+            end
+
+            it "assigns task_1 values" do
+              task_2.reload
+              task_2.name.should eq("new_task_2")
+              task_2.start_date.should eq(Date.new(2011, 8, 15))
+              task_2.end_date.should eq(Date.new(2011, 12, 15))
+            end
           end
         end
       end
       
       describe "save!", :save! => true do
-        describe "model calls" do
+        describe "without destroy" do
           it "should return true on 'save!', and call save! on other models" do
             form.company.should_receive(:save!).and_return(true)
             form.project.should_receive(:save!).and_return(true)
@@ -404,7 +487,38 @@ describe FreeForm::Form do
             form.tasks.last.task.should_receive(:save!).and_return(true)
             form.save!
           end
-          
+
+          describe "value assignment and persistence" do
+            before(:each) { form.save! }
+
+            it "assign company values" do
+              company.reload
+              company.name.should eq("dummycorp")
+            end
+            
+            it "assigns project values" do
+              project.reload
+              project.name.should eq("railsapp")
+              project.due_date.should eq(Date.new(2014, 10, 30))
+            end
+
+            it "assigns task_1 values" do
+              task_1.reload
+              task_1.name.should eq("new_task_1")
+              task_1.start_date.should eq(Date.new(2012, 1, 2))
+              task_1.end_date.should eq(Date.new(2014, 3, 3))
+            end
+
+            it "assigns task_1 values" do
+              task_2.reload
+              task_2.name.should eq("new_task_2")
+              task_2.start_date.should eq(Date.new(2011, 8, 15))
+              task_2.end_date.should eq(Date.new(2011, 12, 15))
+            end
+          end
+        end
+        
+        describe "with destroy" do          
           it "destroys models on save! if set" do
             form._destroy = true
             form.company.should_receive(:destroy).and_return(true)
@@ -423,6 +537,35 @@ describe FreeForm::Form do
             form.save!
           end
 
+          describe "value assignment and persistence" do
+            before(:each) { form._destroy = true }
+            before(:each) { form.save! }
+
+            it "destroys company" do
+              expect { company.reload }.to raise_error
+            end
+            
+            it "destroys project" do
+              expect { project.reload }.to raise_error
+            end
+
+            it "assigns task_1 values" do
+              task_1.reload
+              task_1.name.should eq("new_task_1")
+              task_1.start_date.should eq(Date.new(2012, 1, 2))
+              task_1.end_date.should eq(Date.new(2014, 3, 3))
+            end
+
+            it "assigns task_1 values" do
+              task_2.reload
+              task_2.name.should eq("new_task_2")
+              task_2.start_date.should eq(Date.new(2011, 8, 15))
+              task_2.end_date.should eq(Date.new(2011, 12, 15))
+            end
+          end
+        end
+        
+        describe "with nested destroy" do
           it "destroys nested models on save! if set" do
             form.tasks.last._destroy = true
             form.company.should_receive(:save!).and_return(true)
@@ -432,8 +575,31 @@ describe FreeForm::Form do
             form.save!
           end
 
-          it "correctly assigns all values" do
-            pending
+          describe "value assignment and persistence" do
+            before(:each) { form.tasks.first._destroy = true }
+            before(:each) { form.save! }
+
+            it "assign company values" do
+              company.reload
+              company.name.should eq("dummycorp")
+            end
+            
+            it "assigns project values" do
+              project.reload
+              project.name.should eq("railsapp")
+              project.due_date.should eq(Date.new(2014, 10, 30))
+            end
+
+            it "destroys task_1" do
+              expect { task_1.reload }.to raise_error
+            end
+
+            it "assigns task_1 values" do
+              task_2.reload
+              task_2.name.should eq("new_task_2")
+              task_2.start_date.should eq(Date.new(2011, 8, 15))
+              task_2.end_date.should eq(Date.new(2011, 12, 15))
+            end
           end
         end        
       end
