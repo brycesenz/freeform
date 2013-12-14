@@ -68,7 +68,7 @@ module FreeForm
 
       args << (options.delete(:href) || "javascript:void(0)")
       args << options
-      hidden_field(:_destroy, :value => false) << @template.link_to(*args, &block)
+      hidden_field(:_destroy, :value => 0) << @template.link_to(*args, &block)
     end
 
     def fields_for_with_nested_attributes(association_name, *args)

@@ -94,9 +94,9 @@ require "spec_helper"
 
       describe '#link_to_remove', :link_to_remove => true do
         it "behaves similar to a Rails link_to" do
-          subject.link_to_remove("Remove").should eq('<input id="item__destroy" name="item[_destroy]" type="hidden" value="false" /><a href="javascript:void(0)" class="remove_nested_form">Remove</a>')
-          subject.link_to_remove("Remove", :class => "foo", :href => "url").should eq('<input id="item__destroy" name="item[_destroy]" type="hidden" value="false" /><a href="url" class="foo remove_nested_form">Remove</a>')
-          subject.link_to_remove { "Remove" }.should eq('<input id="item__destroy" name="item[_destroy]" type="hidden" value="false" /><a href="javascript:void(0)" class="remove_nested_form">Remove</a>')
+          subject.link_to_remove("Remove").should eq('<input id="item__destroy" name="item[_destroy]" type="hidden" value="0" /><a href="javascript:void(0)" class="remove_nested_form">Remove</a>')
+          subject.link_to_remove("Remove", :class => "foo", :href => "url").should eq('<input id="item__destroy" name="item[_destroy]" type="hidden" value="0" /><a href="url" class="foo remove_nested_form">Remove</a>')
+          subject.link_to_remove { "Remove" }.should eq('<input id="item__destroy" name="item[_destroy]" type="hidden" value="0" /><a href="javascript:void(0)" class="remove_nested_form">Remove</a>')
         end
 
         it 'has data-association attribute' do
