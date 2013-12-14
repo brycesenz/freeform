@@ -25072,3 +25072,5 @@ Completed 200 OK in 9.3ms (Views: 8.7ms | ActiveRecord: 0.0ms)
   [1m[36m (0.3ms)[0m  [1mUPDATE "tasks" SET "name" = 'new_task_2', "start_date" = '2011-08-15', "end_date" = '2011-12-15' WHERE "tasks"."id" = 1593[0m
   [1m[35m (113.9ms)[0m  commit transaction
   [1m[36mTask Load (0.1ms)[0m  [1mSELECT "tasks".* FROM "tasks" WHERE "tasks"."id" = ? LIMIT 1[0m  [["id", 1593]]
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml

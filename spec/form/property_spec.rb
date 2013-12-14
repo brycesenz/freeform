@@ -272,6 +272,31 @@ describe FreeForm::Property do
           form.mark_for_destruction
           form.marked_for_destruction?.should be_true          
         end
+        
+        it "interprets '0' is not marked for destruction" do
+          form.fill({:_destroy => "0"})
+          form.marked_for_destruction?.should be_false
+        end
+
+        it "interprets 'false' is not marked for destruction" do
+          form.fill({:_destroy => "false"})
+          form.marked_for_destruction?.should be_false
+        end
+
+        it "interprets '1' is marked for destruction" do
+          form.fill({:_destroy => "1"})
+          form.marked_for_destruction?.should be_true
+        end
+
+        it "interprets 'true' is marked for destruction" do
+          form.fill({:_destroy => "true"})
+          form.marked_for_destruction?.should be_true
+        end
+
+        it "interprets '2' is marked for destruction" do
+          form.fill({:_destroy => "2"})
+          form.marked_for_destruction?.should be_true
+        end
       end
     end
   end

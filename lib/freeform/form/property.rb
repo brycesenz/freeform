@@ -52,6 +52,10 @@ module FreeForm
       def allow_destroy_on_save
         # Define _destroy method for marked-for-destruction handling
         attr_accessor :_destroy
+        define_method(:_destroy=) do |value|
+          false_values = [nil, 0 , false, "0", "false"]
+          @_destroy = !(false_values.include?(value))
+        end
         alias_method :marked_for_destruction?, :_destroy
         define_method(:mark_for_destruction) do
           @_destroy = true
