@@ -103,7 +103,11 @@ module FreeForm
     private
       def params_to_date(year, month, day)
         day ||= 1 # FIXME: is that really what we want? test.
-        Date.new(year.to_i, month.to_i, day.to_i) # TODO: test fails.
+        begin # TODO: test fails.
+          return Date.new(year.to_i, month.to_i, day.to_i) 
+        rescue ArgumentError => e
+          return nil
+        end
       end
     end
 
