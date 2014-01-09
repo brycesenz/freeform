@@ -12,7 +12,7 @@ FreeForm is designed primarily with Rails in mind, but it should work on any Rub
 
 Add this line to your application's Gemfile:
 
-    gem 'freeform', '>= 0.0.4'
+    gem 'freeform', '>= 1.0.0'
 
 And then execute:
 
@@ -24,7 +24,7 @@ Or install it yourself as:
 
 ## How It Works
 
-FreeForm can 1-*n* models, exposing whatever attributes you wish from each model, and delegating those assignments back to the models themselves.  This means that one form can be used just as easily to support parent/child models, multiple unrelated models, etc.  Your database relationships can change, and your forms won't have to.
+FreeForm creates model objects that can hold 1-*n* models, exposing whatever attributes you wish from each model, and delegating those assignments back to the models themselves.  This means that one form can be used just as easily to support parent/child models, multiple unrelated models, etc.  Your database relationships can change, and your forms won't have to.
 
 **Example**
 
@@ -185,7 +185,9 @@ Personally, I use validations in both places.  My domain models have their own v
 
 ## Nesting Forms
 
-Sometimes, you need to be able to support a collection of unknown size (e.g. a user with many phone numbers).  Since FreeForm makes no assumptions about your domain models, we nest forms themselves.
+One of the benefits of forms objects is that you don't have to mess with models accepting nested attributes.
+But sometimes, you need to be able to support a collection of unknown size (e.g. a user with many phone numbers).  
+Since FreeForm makes no assumptions about your domain models, we nest forms themselves.
 
 ```ruby
 class UserForm < FreeForm::Form
@@ -193,13 +195,19 @@ class UserForm < FreeForm::Form
 
   property :username,              :on => :user
   property :email,                 :on => :user
+    
+  has_many :phone_numbers, :class => PhoneNumberForm, :default_initializer => :phone_initializer
   
-  nested_form :phone_numbers do
-    form_models :phone
-	
-	property :area_code,              :on => :phone
-	property :number,                 :on => :phone
+  def phone_initializer
+    { :phone => user.phone_numbers.build }
   end
+end
+
+class PhoneNumberForm < FreeForm::Form
+  form_models :phone
+
+  property :area_code,              :on => :phone
+  property :number,                 :on => :phone
 end
 ```
 **Note:**  The method `nested_form` is also aliased as `has_many` and `has_one`, if you prefer the expressiveness of that syntax.  The functionality is the same in any case.
@@ -207,37 +215,12 @@ end
 When using a nested form, the form starts with **no** nested forms pre-built.  FreeForm provides a method called `build_#{nested_form_model}` (e.g. `build_phone_numbers`) that you can use to build a nested form.  You must provide the initializer:
 ```ruby
 form = UserForm.new(:user => User.new)
-form.build_phone_numbers(:phone => Phone.new)
-# The singularized version is aliased as well.
-form.build_phone_number(:phone => Phone.new) 
+form.build_phone_number # Now the nested form is created
 ```
 
-**Working with nested_form gem**
-In order to support the `nested_form` gem, FreeForm currently uses a bit of hackiness. You actually need to specify an option on your nested forms called `class_initializer`, that points to a class method to use to specify the default parameters.  You can either provide the method hardcoded into the class, or set it externally.  It accepts either a hardcoded hash, or a Proc.
-```ruby
-class UserForm < FreeForm::Form
-  form_models :user
-
-  property :username,              :on => :user
-  property :email,                 :on => :user
-  
-  nested_form :phone_numbers, :class_initializer => :phone_initializer do
-    form_models :phone
-	
-	property :area_code,              :on => :phone
-	property :number,                 :on => :phone
-  end
-end
-
-UserForm.phone_initializer = lambda { { :phone => Phone.new } }
-form = UserForm.new( :user => User.new )
-form.build_phone_number # Uses Phone.new to initialize the nested form.
-```
-I apologize for the ugliness - In the future, I plan to roll FreeForm's own version of the `nested_form` javascript functionality.
-
-## Initialize With Care!
-
-FreeForm's flexibility comes at a bit of a cost - it makes no assumptions about relationships between initialized models or nested forms.  So initializing the form correctly is important.
+**Ryan Bates' nested_form gem functionality**
+FreeForm has a built in implementation of the functionality from Ryan Bates' *nested_form* gem.
+When building a form, just use the method `freeform_for...`
 
 ** Example **
 ```ruby
@@ -250,12 +233,18 @@ class UserForm < FreeForm::Form
   property :username,              :on => :user
   property :email,                 :on => :user
   
-  nested_form :phone_numbers, :class_initializer => :phone_initializer do
-    form_models :phone
-	
-	property :area_code,              :on => :phone
-	property :number,                 :on => :phone
+  has_many :phone_numbers, :class => PhoneNumberForm, :default_initializer => :phone_initializer
+  
+  def phone_initializer
+    { :phone => user.phone_numbers.build }
   end
+end
+
+class PhoneNumberForm < FreeForm::Form
+  form_models :phone
+
+  property :area_code,              :on => :phone
+  property :number,                 :on => :phone
 end
 
 form = UserForm.new(:user => current_user)
@@ -265,7 +254,6 @@ Will the current_user's phone numbers automatically appear as nested forms? **No
 If you want them there, put them there, like this:
 
 ```ruby
-UserForm.phone_initializer = lambda { { :phone => current_user.phone_numbers.build } }
 current_user.phone_numbers.each do |phone_number|
   form.build_phone_number(:phone => phone_number)
 end
