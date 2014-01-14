@@ -34,7 +34,9 @@ module FreeForm
 
         # Example: form.addresses will return all nested address forms 
         define_method(:"#{attribute}") do
-          @nested_attributes ||= []
+          value = instance_variable_get("@nested_#{attribute}")
+          value ||= []
+          instance_variable_set("@nested_#{attribute}", value)
         end
         
         # Example: form.build_addresses (optional custom initializer)
@@ -53,8 +55,11 @@ module FreeForm
 
           # Build new model
           form_model = form_class.new(initializer)
-          @nested_attributes ||= []
-          @nested_attributes << form_model
+          value = instance_variable_get("@nested_#{attribute}")
+          value ||= []
+          value << form_model
+          instance_variable_set("@nested_#{attribute}", value)
+
           form_model
         end
         alias_method :"build_#{singularized_attribute}", :"build_#{attribute}"
