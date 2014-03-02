@@ -7,8 +7,8 @@ require "spec_helper"
         form_input_key :milestone
         form_models :milestone
         allow_destroy_on_save
-        
-        property :name, :on => :milestone  
+
+        property :name, :on => :milestone
       end
       # This wrapper just avoids CONST warnings
       v, $VERBOSE = $VERBOSE, nil
@@ -22,9 +22,9 @@ require "spec_helper"
         form_input_key :task
         form_models :task
         allow_destroy_on_save
-        
+
         property :name, :on => :task
-  
+
         has_many :milestones, :class => Module::MilestoneForm, :default_initializer => :milestone_initializer
 
         def milestone_initializer
@@ -43,11 +43,11 @@ require "spec_helper"
         form_input_key :project
         form_models :project
         allow_destroy_on_save
-        
+
         property :name, :on => :project
-  
+
         has_many :tasks, :class => Module::TaskForm, :default_initializer => :task_initializer
-        
+
         def task_initializer
           {:task => Task.new}
         end
@@ -58,7 +58,7 @@ require "spec_helper"
       $VERBOSE = v
       klass
     end
-    
+
     let(:form) { form_class.new(:project => Project.new) }
 
     let(:template) do
@@ -133,11 +133,11 @@ require "spec_helper"
         end
       end
 
-      it "wraps nested fields marked for destruction with an additional class" do
+      it "wraps nested fields marked for destruction with an additional class, and hides them" do
         task = form.build_task
         task.mark_for_destruction
         fields = subject.fields_for(:tasks) { 'Task' }
-        fields.should eq('<div class="fields marked_for_destruction">Task</div>')
+        fields.should eq('<div class="fields marked_for_destruction" style="display: none;">Task</div>')
       end
 
       it "puts blueprint into data-blueprint attribute" do

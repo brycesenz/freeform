@@ -70,7 +70,6 @@ module FreeForm
       args << options
       hidden_field(:_destroy, :value => 0) << @template.link_to(*args, &block)
     end
-
     def fields_for_with_nested_attributes(association_name, *args)
       # TODO Test this better
       block = args.pop || Proc.new { |fields| @template.render(:partial => "#{association_name.to_s.singularize}_fields", :locals => {:f => fields}) }
@@ -88,14 +87,15 @@ module FreeForm
     end
 
     def fields_for_nested_model(name, object, options, block)
-      classes = 'fields'
-      classes << ' marked_for_destruction' if object.respond_to?(:marked_for_destruction?) && object.marked_for_destruction?
-
       perform_wrap   = options.fetch(:nested_wrapper, true)
       perform_wrap &&= options[:wrapper] != false # wrap even if nil
 
       if perform_wrap
-        @template.content_tag(:div, super, :class => classes)
+        if object.respond_to?(:marked_for_destruction?) && object.marked_for_destruction?
+          @template.content_tag(:div, super, :class => 'fields marked_for_destruction', :style => "display: none;")
+        else
+          @template.content_tag(:div, super, :class => 'fields')
+        end
       else
         super
       end

@@ -7,7 +7,7 @@ describe FreeForm::Form do
       form_model :task
       validate_models
       allow_destroy_on_save
-      
+
       property :name,          :on => :task
       property :start_date,    :on => :task
       property :end_date,      :on => :task
@@ -23,18 +23,18 @@ describe FreeForm::Form do
     klass = Class.new(FreeForm::Form) do
       form_input_key :company
       form_models :company
-      child_model :project do 
+      child_model :project do
         company.project.present? ? company.project : company.build_project
       end
       validate_models
       allow_destroy_on_save
-      
+
       property :name,     :on => :company, :as => :company_name
       property :name,     :on => :project, :as => :project_name
       property :due_date, :on => :project
 
       has_many :tasks, :class => Module::TaskForm, :default_initializer => :default_task_initializer
-      
+
       def default_task_initializer
         { :task => project.tasks.build }
       end
@@ -45,12 +45,12 @@ describe FreeForm::Form do
     $VERBOSE = v
     klass
   end
-  
+
   let(:company) { Company.create!(:name => "Demo Corporation") }
   let(:project) { Project.create!(:company => company, :name => "Widget", :due_date => Date.new(2014, 1, 1)) }
   let(:task_1)  { Task.create!(:project => project, :name => "Task 1", :start_date => Date.new(2014, 2, 2), :end_date => Date.new(2014, 3, 3)) }
   let(:task_2)  { Task.create!(:project => project, :name => "Task 2", :start_date => Date.new(2014, 9, 1), :end_date => Date.new(2014, 10, 1)) }
-      
+
   let(:form) do
     f = form_class.new( :company => company )
     company.project.tasks.each do |task|
@@ -58,14 +58,14 @@ describe FreeForm::Form do
     end
     f
   end
-  
+
   before(:each) do
     company.reload
     project.reload
     task_1.reload
     task_2.reload
   end
-  
+
   describe "form initialization", :initialization => true do
     it "initializes with Company model" do
       form.company.should eq(company)
@@ -129,11 +129,11 @@ describe FreeForm::Form do
         }
       } }
     end
-    
+
     before(:each) do
       form.fill(attributes)
     end
-    
+
     it "assigns company name" do
       form.company_name.should eq("dummycorp")
       form.company.name.should eq("dummycorp")
@@ -193,12 +193,12 @@ describe FreeForm::Form do
           }
         } }
       end
-      
+
       before(:each) do
         form.fill(attributes)
         form.valid?
       end
-      
+
       it "should be invalid" do
         form.should_not be_valid
       end
@@ -234,12 +234,12 @@ describe FreeForm::Form do
           }
         } }
       end
-      
+
       before(:each) do
         form.fill(attributes)
         form.valid?
       end
-      
+
       it "should be invalid" do
         form.should_not be_valid
       end
@@ -274,11 +274,11 @@ describe FreeForm::Form do
           }
         } }
       end
-      
+
       before(:each) do
         form.fill(attributes)
       end
-      
+
       it "should be valid" do
         form.should be_valid
       end
@@ -308,17 +308,54 @@ describe FreeForm::Form do
           }
         } }
       end
-      
+
       before(:each) do
         form.fill(attributes)
       end
-      
+
       it "should return false on 'save'" do
         form.save.should be_false
       end
 
       it "should raise error on 'save!'" do
-        expect{ form.save!.should be_false }.to raise_error(FreeForm::FormInvalid)
+        expect{ form.save! }.to raise_error(FreeForm::FormInvalid)
+      end
+    end
+
+    context "with invalid, marked for destruction attributes", :failing => true do
+      let(:attributes) do {
+        :company_name => "dummycorp",
+        :project_name => "my_project",
+        "due_date(1i)" => "2014",
+        "due_date(2i)" => "10",
+        "due_date(3i)" => "30",
+        :tasks_attributes => {
+          "0" => {
+            :name => "task_1",
+            "start_date(1i)" => "2012",
+            "start_date(2i)" => "1",
+            "start_date(3i)" => "2",
+          },
+          "1" => {
+            :name => "task_2",
+            "end_date(1i)" => "2011",
+            "end_date(2i)" => "12",
+            "end_date(3i)" => "15",
+            :_destroy => "1"
+          }
+        } }
+      end
+
+      before(:each) do
+        form.fill(attributes)
+      end
+
+      it "should return true on 'save'" do
+        form.save.should be_true
+      end
+
+      it "should not raise error on 'save!'" do
+        expect{ form.save! }.to_not raise_error
       end
     end
 
@@ -347,11 +384,11 @@ describe FreeForm::Form do
           }
         } }
       end
-      
+
       before(:each) do
         form.fill(attributes)
       end
-      
+
       describe "save", :save => true do
         describe "without destroy" do
           it "should return true on 'save', and call save on other models" do
@@ -361,7 +398,7 @@ describe FreeForm::Form do
             form.tasks.last.task.should_receive(:save).and_return(true)
             form.save
           end
-          
+
           describe "value assignment and persistence" do
             before(:each) { form.save }
 
@@ -369,7 +406,7 @@ describe FreeForm::Form do
               company.reload
               company.name.should eq("dummycorp")
             end
-            
+
             it "assigns project values" do
               project.reload
               project.name.should eq("railsapp")
@@ -391,8 +428,8 @@ describe FreeForm::Form do
             end
           end
         end
-        
-        describe "with destroy" do          
+
+        describe "with destroy" do
           it "destroys models on save if set" do
             form._destroy = true
             form.company.should_receive(:destroy).and_return(true)
@@ -401,7 +438,7 @@ describe FreeForm::Form do
             form.tasks.last.task.should_receive(:save).and_return(true)
             form.save
           end
-  
+
           it "destroys models on save if set through attribute" do
             form.fill({:_destroy => "1"})
             form.company.should_receive(:destroy).and_return(true)
@@ -418,7 +455,7 @@ describe FreeForm::Form do
             it "destroys company" do
               expect { company.reload }.to raise_error
             end
-            
+
             it "destroys project" do
               expect { project.reload }.to raise_error
             end
@@ -438,8 +475,8 @@ describe FreeForm::Form do
             end
           end
         end
-        
-        describe "with nested destroy" do  
+
+        describe "with nested destroy" do
           before(:each) { form.tasks.first._destroy = true }
 
           it "destroys nested models on save if set" do
@@ -449,7 +486,7 @@ describe FreeForm::Form do
             form.tasks.last.task.should_receive(:save).and_return(true)
             form.save
           end
-                    
+
           describe "value assignment and persistence" do
             before(:each) { form.save }
 
@@ -457,7 +494,7 @@ describe FreeForm::Form do
               company.reload
               company.name.should eq("dummycorp")
             end
-            
+
             it "assigns project values" do
               project.reload
               project.name.should eq("railsapp")
@@ -477,7 +514,7 @@ describe FreeForm::Form do
           end
         end
       end
-      
+
       describe "save!", :save! => true do
         describe "without destroy" do
           it "should return true on 'save!', and call save! on other models" do
@@ -495,7 +532,7 @@ describe FreeForm::Form do
               company.reload
               company.name.should eq("dummycorp")
             end
-            
+
             it "assigns project values" do
               project.reload
               project.name.should eq("railsapp")
@@ -517,8 +554,8 @@ describe FreeForm::Form do
             end
           end
         end
-        
-        describe "with destroy" do          
+
+        describe "with destroy" do
           it "destroys models on save! if set" do
             form._destroy = true
             form.company.should_receive(:destroy).and_return(true)
@@ -527,7 +564,7 @@ describe FreeForm::Form do
             form.tasks.last.task.should_receive(:save!).and_return(true)
             form.save!
           end
-  
+
           it "destroys models on save! if set" do
             form.fill({:_destroy => "1"})
             form.company.should_receive(:destroy).and_return(true)
@@ -544,7 +581,7 @@ describe FreeForm::Form do
             it "destroys company" do
               expect { company.reload }.to raise_error
             end
-            
+
             it "destroys project" do
               expect { project.reload }.to raise_error
             end
@@ -564,7 +601,7 @@ describe FreeForm::Form do
             end
           end
         end
-        
+
         describe "with nested destroy" do
           it "destroys nested models on save! if set" do
             form.tasks.last._destroy = true
@@ -583,7 +620,7 @@ describe FreeForm::Form do
               company.reload
               company.name.should eq("dummycorp")
             end
-            
+
             it "assigns project values" do
               project.reload
               project.name.should eq("railsapp")
@@ -601,7 +638,7 @@ describe FreeForm::Form do
               task_2.end_date.should eq(Date.new(2011, 12, 15))
             end
           end
-        end        
+        end
       end
     end
   end

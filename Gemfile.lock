@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    freeform (1.0.2)
+    freeform (1.0.3)
       activemodel
       formtastic
       nested_form (~> 0.3.2)
@@ -70,7 +70,7 @@ GEM
     nested_form (0.3.2)
     nokogiri (1.6.0)
       mini_portile (~> 0.5.0)
-    polyglot (0.3.3)
+    polyglot (0.3.4)
     rack (1.4.5)
     rack-cache (1.2)
       rack (>= 0.4)
