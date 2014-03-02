@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    freeform (1.0.0)
+    freeform (1.0.2)
       activemodel
       formtastic
       nested_form (~> 0.3.2)

@@ -6,7 +6,9 @@ FreeForm is a gem designed to give you total control over form objects, allowing
   * Simply composing multi-model forms
   * Removing the ugliness of `accepts_nested_attributes_for`
 
-FreeForm is designed primarily with Rails in mind, but it should work on any Ruby framework.  FreeForm is compatible with most form gems, including simpleform, formbuilder, and Ryan Bate's nested_form gem.
+FreeForm is designed primarily with Rails in mind, but it should work on any Ruby framework.  FreeForm is compatible with most form gems, including simpleform, and formbuilder
+
+**FreeForm will not work with Ryan Bate's nested_form gem, but provides its own identical behavior**
 
 ## Installation
 
@@ -79,7 +81,7 @@ FreeForm doesn't assume a lot, so you need to tell it:
   * The names of the models it's going to be mapping (specified as `form_model` or `form_models`)
   * The properties of the form, and which model they map to (specified as `property` or `properties`).  Properties that don't map to a model are considered to be just form attributes.
   * How to validate, if at all (see below)
-  
+
 ```ruby
 class RegistrationForm < FreeForm::Form
   form_models :user, :address
@@ -171,22 +173,22 @@ class UserForm < FreeForm::Form
   property :username,              :on => :user
   property :email,                 :on => :user
   property :current_password
-  
+
   # But you can also validate in the form itself!
-  validates :email, :presence => true  
+  validates :email, :presence => true
   validate :valid_current_password
-  
+
   def valid_current_password
     user.password == current_password
   end
 end
 ```
-Personally, I use validations in both places.  My domain models have their own validations, which I use for things that are universally true of that model (e.g. email is correctly formatted).  Some forms have validations though that are specific to that form, and they live in the form itself (see above example with `current_password`) 
+Personally, I use validations in both places.  My domain models have their own validations, which I use for things that are universally true of that model (e.g. email is correctly formatted).  Some forms have validations though that are specific to that form, and they live in the form itself (see above example with `current_password`)
 
 ## Nesting Forms
 
 One of the benefits of forms objects is that you don't have to mess with models accepting nested attributes.
-But sometimes, you need to be able to support a collection of unknown size (e.g. a user with many phone numbers).  
+But sometimes, you need to be able to support a collection of unknown size (e.g. a user with many phone numbers).
 Since FreeForm makes no assumptions about your domain models, we nest forms themselves.
 
 ```ruby
@@ -195,9 +197,9 @@ class UserForm < FreeForm::Form
 
   property :username,              :on => :user
   property :email,                 :on => :user
-    
+
   has_many :phone_numbers, :class => PhoneNumberForm, :default_initializer => :phone_initializer
-  
+
   def phone_initializer
     { :phone => user.phone_numbers.build }
   end
@@ -232,9 +234,9 @@ class UserForm < FreeForm::Form
 
   property :username,              :on => :user
   property :email,                 :on => :user
-  
+
   has_many :phone_numbers, :class => PhoneNumberForm, :default_initializer => :phone_initializer
-  
+
   def phone_initializer
     { :phone => user.phone_numbers.build }
   end
@@ -274,7 +276,7 @@ class MyScope::UserForm < FreeForm::Form
   property :email, :on => :user
 end
 ```
-Would render with HTML input fields like 
+Would render with HTML input fields like
 `<input id="user_email" ... name="user[email]"></input>` instead of
 `<input id="my_scope_user_form_email" ... name="my_scope_user_form[email]"></input>`
 

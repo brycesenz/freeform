@@ -7,7 +7,7 @@ describe FreeForm::Form do
       form_model :task
       validate_models
       allow_destroy_on_save
-      
+
       property :name,          :on => :task
       property :start_date,    :on => :task
       property :end_date,      :on => :task
@@ -23,18 +23,18 @@ describe FreeForm::Form do
     klass = Class.new(FreeForm::Form) do
       form_input_key :company
       form_models :company
-      child_model :project do 
+      child_model :project do
         company.project.present? ? company.project : company.build_project
       end
       validate_models
       allow_destroy_on_save
-      
+
       property :name,     :on => :company, :as => :company_name
       property :name,     :on => :project, :as => :project_name
       property :due_date, :on => :project
 
       has_many :tasks, :class => Module::TaskForm, :default_initializer => :default_task_initializer
-      
+
       def default_task_initializer
         { :task => Task.new(:project => project) }
       end
@@ -51,7 +51,7 @@ describe FreeForm::Form do
     f.build_task
     f
   end
-  
+
   describe "form initialization", :initialization => true do
     it "initializes with Company model" do
       form.company.should be_a(Company)
@@ -65,7 +65,7 @@ describe FreeForm::Form do
       form.tasks.first.task.should be_a(Task)
     end
 
-    it "initializes with Task with project parent", :failing => true do
+    it "initializes with Task with project parent" do
       task = form.tasks.first.task
       task.project.should eq(form.project)
     end
@@ -109,11 +109,11 @@ describe FreeForm::Form do
         }
       } }
     end
-    
+
     before(:each) do
       form.fill(attributes)
     end
-    
+
     it "assigns company name" do
       form.company_name.should eq("dummycorp")
       form.company.name.should eq("dummycorp")
@@ -173,12 +173,12 @@ describe FreeForm::Form do
           }
         } }
       end
-      
+
       before(:each) do
         form.fill(attributes)
         form.valid?
       end
-      
+
       it "should be invalid" do
         form.should_not be_valid
       end
@@ -214,18 +214,56 @@ describe FreeForm::Form do
           }
         } }
       end
-      
+
       before(:each) do
         form.fill(attributes)
         form.valid?
       end
-      
+
       it "should be invalid" do
         form.should_not be_valid
       end
 
       it "should have errors on last tasks's start_date" do
         form.tasks.last.errors[:start_date].should eq(["can't be blank"])
+      end
+    end
+
+    context "with invalid, marked for destruction nested model", :failing => true do
+      let(:attributes) do {
+        :company_name => "dummycorp",
+        :project_name => "rails app",
+        "due_date(1i)" => "2014",
+        "due_date(2i)" => "10",
+        "due_date(3i)" => "30",
+        :tasks_attributes => {
+          "0" => {
+            :name => "task_1",
+            "start_date(1i)" => "2012",
+            "start_date(2i)" => "1",
+            "start_date(3i)" => "2",
+          },
+          "1" => {
+            :name => "task_2",
+            "end_date(1i)" => "2011",
+            "end_date(2i)" => "12",
+            "end_date(3i)" => "15",
+            :_destroy => "1"
+          }
+        } }
+      end
+
+      before(:each) do
+        form.fill(attributes)
+        form.valid?
+      end
+
+      it "should be valid" do
+        form.should be_valid
+      end
+
+      it "should not have errors" do
+        form.errors.should be_empty
       end
     end
 
@@ -254,11 +292,11 @@ describe FreeForm::Form do
           }
         } }
       end
-      
+
       before(:each) do
         form.fill(attributes)
       end
-      
+
       it "should be valid" do
         form.should be_valid
       end
@@ -288,11 +326,11 @@ describe FreeForm::Form do
           }
         } }
       end
-      
+
       before(:each) do
         form.fill(attributes)
       end
-      
+
       it "should return false on 'save'" do
         form.save.should be_false
       end
@@ -327,11 +365,11 @@ describe FreeForm::Form do
           }
         } }
       end
-      
+
       before(:each) do
         form.fill(attributes)
       end
-      
+
       it "should return true on 'save', and call save on other models" do
         form.company.should_receive(:save).and_return(true)
         form.project.should_receive(:save).and_return(true)
@@ -358,7 +396,7 @@ describe FreeForm::Form do
             form.tasks.last.task.should_receive(:save).and_return(true)
             form.save
           end
-    
+
           it "destroys models on save if set through attribute" do
             form.fill({:_destroy => "1"})
             form.company.should_receive(:destroy).and_return(true)
@@ -377,7 +415,7 @@ describe FreeForm::Form do
             form.save
           end
         end
-        
+
         describe "save!" do
           it "destroys models on save! if set" do
             form._destroy = true
@@ -387,7 +425,7 @@ describe FreeForm::Form do
             form.tasks.last.task.should_receive(:save!).and_return(true)
             form.save!
           end
-  
+
           it "destroys models on save! if set" do
             form.fill({:_destroy => "1"})
             form.company.should_receive(:destroy).and_return(true)
