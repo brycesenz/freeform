@@ -60,20 +60,12 @@ module FreeForm
         end
       end
 
-#      puts "Saving... #{self}"
-
       # After nested models are handled, save or destroy myself.
       self.class.models.each do |form_model|
         model = send(form_model)
         # This is for form models.
         unless model.is_a?(Array)
-#          puts "Saving model...#{model}"
-          if model.is_a?(Project)
-            # puts "All Tasks = #{Task.all}"
-            # puts "Tasks = #{model.tasks.inspect}"
-          end
           if marked_for_destruction?
-            # puts "destroying model...#{model}"
             model.destroy
           else
             model.save
@@ -84,8 +76,6 @@ module FreeForm
 
     def save!
       raise FreeForm::FormInvalid, "form invalid." unless valid?
-
-      # Destroy all marked-for-destruction models
 
       self.class.models.each do |form_model|
         model = send(form_model)
