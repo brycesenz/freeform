@@ -22,6 +22,7 @@
         context = context.replace(new RegExp('\\[' + current[1] + '\\]\\[(new_)?\\d+\\]$'), '');
       }
 
+
       // context will be something like this for a brand new form:
       // project[tasks_attributes][1255929127459][assignments_attributes][1255929128105]
       // or for an edit form:
@@ -45,7 +46,7 @@
 
       // Make a unique ID for the new child
       var regexp  = new RegExp('new_' + assoc, 'g');
-      var new_id  = this.newId();
+      var new_id  = this.newId(assoc);
       content     = $.trim(content.replace(regexp, new_id));
 
       var field = this.insertFields(content, assoc, link);
@@ -55,8 +56,11 @@
         .trigger({ type: 'nested:fieldAdded:' + assoc, field: field });
       return false;
     },
-    newId: function() {
-      return new Date().getTime();
+    newId: function(assoc) {
+      // Instead, I should try to count the number of matches so far, then add 1
+      // return new Date().getTime();
+      count = $('div.fields a[data-association*="' + assoc + '"]').length;
+      return count;
     },
     insertFields: function(content, assoc, link) {
       var target = $(link).data('target');
@@ -69,13 +73,13 @@
     removeFields: function(e) {
       var $link = $(e.currentTarget),
           assoc = $link.data('association'); // Name of child to be removed
-      
+
       var hiddenField = $link.prev('input[type=hidden]');
       hiddenField.val('1');
-      
+
       var field = $link.closest('.fields');
       field.hide();
-      
+
       field
         .trigger({ type: 'nested:fieldRemoved', field: field })
         .trigger({ type: 'nested:fieldRemoved:' + assoc, field: field });

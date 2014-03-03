@@ -3,7 +3,7 @@ module FreeForm
     def self.included(base)
       base.extend(ClassMethods)
     end
-        
+
     module ClassMethods
       # Nested Forms
       #------------------------------------------------------------------------
@@ -32,21 +32,21 @@ module FreeForm
       def define_nested_model_methods(attribute, form_class, options={})
         singularized_attribute = attribute.to_s.singularize.to_s
 
-        # Example: form.addresses will return all nested address forms 
+        # Example: form.addresses will return all nested address forms
         define_method(:"#{attribute}") do
           value = instance_variable_get("@nested_#{attribute}")
           value ||= []
           instance_variable_set("@nested_#{attribute}", value)
         end
-        
+
         # Example: form.build_addresses (optional custom initializer)
         define_method(:"build_#{attribute}") do |initializer=nil|
           # Builder object
           parent_object = self
-          
+
           # Get correct class
           form_class = self.class.nested_forms[:"#{attribute}"]
-          
+
           # Default Initializer
           if options[:default_initializer]
             initializer ||= instance_eval(&options[:default_initializer])
@@ -84,11 +84,11 @@ module FreeForm
 
     # Instance Methods
     #--------------------------------------------------------------------------
-    protected
+  protected
     def build_models_from_param_count(attribute, params)
       # Get the difference between sets of params passed and current form objects
       num_param_models = params.length
-      num_built_models = self.send(:"#{attribute}").nil? ? 0 : self.send(:"#{attribute}").length          
+      num_built_models = self.send(:"#{attribute}").nil? ? 0 : self.send(:"#{attribute}").length
       additional_models_needed = num_param_models - num_built_models
 
       # Make up the difference by building new nested form models

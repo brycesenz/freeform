@@ -1,4 +1,4 @@
-<%= freeform_for @form do |f| -%>
+<%= freeform_for @form, :url => projects_path, :method => :post do |f| -%>
   <%= f.text_field :name %>
   <%= f.fields_for :tasks do |tf| -%>
     <%= tf.text_field :name %>
@@ -10,4 +10,5 @@
     <%= tf.link_to_remove 'Remove' %>
   <% end -%>
   <%= f.link_to_add 'Add new task', :tasks %>
+  <%= f.submit "Submit" %>
 <% end -%>

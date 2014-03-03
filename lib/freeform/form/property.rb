@@ -19,11 +19,11 @@ module FreeForm
 
       def declared_model(name, opts={})
         @models ||= []
-        @models << name        
+        @models << name
         attr_accessor name
       end
       alias_method :form_model, :declared_model
-      
+
       def declared_models(*names)
         names.each do |name|
           declared_model(name)
@@ -33,9 +33,9 @@ module FreeForm
 
       def child_model(name, opts={}, &block)
         @models ||= []
-        @models << name        
+        @models << name
         @child_models ||= []
-        @child_models << name        
+        @child_models << name
         attr_accessor name
         define_method("initialize_#{name}") do
           instance_variable_set("@#{name}", instance_eval(&block))
@@ -53,8 +53,14 @@ module FreeForm
         # Define _destroy method for marked-for-destruction handling
         attr_accessor :_destroy
         define_method(:_destroy=) do |value|
-          false_values = [nil, 0 , false, "0", "false"]
-          @_destroy = !(false_values.include?(value))
+          false_values  = [nil, 0 , false, "0", "false"]
+          true_values  = [1 , true, "1", "true"]
+
+          #TODO: Test this!!
+          @_destroy = !false_values.include?(value)  # Mark initially
+          # if (@_destroy == false) # Can only switch if false
+          #   @_destroy = true if true_values.include?(value)
+          # end
         end
         alias_method :marked_for_destruction?, :_destroy
         define_method(:mark_for_destruction) do
@@ -108,7 +114,7 @@ module FreeForm
       def params_to_date(year, month, day)
         day ||= 1 # FIXME: is that really what we want? test.
         begin # TODO: test fails.
-          return Date.new(year.to_i, month.to_i, day.to_i) 
+          return Date.new(year.to_i, month.to_i, day.to_i)
         rescue ArgumentError => e
           return nil
         end
@@ -128,7 +134,7 @@ module FreeForm
 
   private
     def assign_attribute(attribute, value)
-      self.send :"#{attribute}=", value unless ignore?(attribute, value)      
+      self.send :"#{attribute}=", value unless ignore?(attribute, value)
     end
 
     def ignore?(attribute, value)

@@ -24,7 +24,6 @@ module FreeForm
         raise ArgumentError, "Invalid association. Make sure that a nested form for #{association.to_s} exists."
       end
 
-      #FIXME: I need to use the build method for child models
       model_object = options.delete(:model_object) do
         object.send("build_#{association.to_s.singularize}")
       end
@@ -68,10 +67,16 @@ module FreeForm
 
       args << (options.delete(:href) || "javascript:void(0)")
       args << options
-      hidden_field(:_destroy, :value => 0) << @template.link_to(*args, &block)
+
+      destroy = if self.object.send(:marked_for_destruction?)
+          "1"
+        else
+          "0"
+        end
+      hidden_field(:_destroy, :value => destroy) << @template.link_to(*args, &block)
     end
+
     def fields_for_with_nested_attributes(association_name, *args)
-      # TODO Test this better
       block = args.pop || Proc.new { |fields| @template.render(:partial => "#{association_name.to_s.singularize}_fields", :locals => {:f => fields}) }
 
       options = args.dup.extract_options!

@@ -3,11 +3,10 @@ require 'spec_helper'
 describe 'JavaScript Behavior', :js => true do
   include Capybara::DSL
 
-  [:jquery, :prototype].each do |js_framework|
+  [:jquery].each do |js_framework|
 
     url = case js_framework
     when :jquery then '/projects/new'
-    when :prototype then '/projects/new?type=prototype'
     end
 
     context "with #{js_framework}" do

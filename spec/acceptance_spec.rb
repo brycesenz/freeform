@@ -36,7 +36,7 @@ describe FreeForm::Form do
       has_many :tasks, :class => Module::TaskForm, :default_initializer => :default_task_initializer
 
       def default_task_initializer
-        { :task => Task.new(:project => project) }
+        { :task => project.tasks.build }
       end
     end
     # This wrapper just avoids CONST warnings
@@ -67,7 +67,7 @@ describe FreeForm::Form do
 
     it "initializes with Task with project parent" do
       task = form.tasks.first.task
-      task.project.should eq(form.project)
+      task.should eq(form.project.tasks.first)
     end
   end
 
@@ -229,7 +229,7 @@ describe FreeForm::Form do
       end
     end
 
-    context "with invalid form, and invalid marked for destruction nested model", :failing => true do
+    context "with invalid form, and invalid marked for destruction nested model" do
       let(:attributes) do {
         :company_name => "",
         :project_name => "rails app",
@@ -374,9 +374,110 @@ describe FreeForm::Form do
       end
 
       it "should raise error on 'save!'" do
-        expect{ form.save!.should be_false }.to raise_error(FreeForm::FormInvalid)
+        expect{ form.save! }.to raise_error(FreeForm::FormInvalid)
       end
     end
+
+    context "with invalid attributes, and marked for destruction nested model", :failing => true do
+      let(:attributes) do {
+        :company_name => "dummycorp",
+        :project_name => "",
+        "due_date(1i)" => "2014",
+        "due_date(2i)" => "10",
+        "due_date(3i)" => "30",
+        :tasks_attributes => {
+          "0" => {
+            :name => "task_1",
+            "start_date(1i)" => "2012",
+            "start_date(2i)" => "1",
+            "start_date(3i)" => "2",
+          },
+          "3234322345" => {
+            :name => "task_2",
+            "end_date(1i)" => "2011",
+            "end_date(2i)" => "12",
+            "end_date(3i)" => "15",
+            :_destroy => "1"
+          }
+        } }
+      end
+
+      before(:each) do
+        form.fill(attributes)
+      end
+
+      it "should not be valid" do
+        form.should_not be_valid
+      end
+
+      describe "persisting destroy after failed save" do
+        before(:each) { form.save }
+
+        it "should have the second form still set to _destroy" do
+          form.tasks.second.should be_marked_for_destruction
+        end
+      end
+
+#       it "should have valid company and project after save", :failing_1 => true do
+#         form.save
+# #        form.tasks.first.task.destroy
+#         form.company.should be_valid
+#         form.project.valid?
+#         puts "Errors = #{form.project.errors.inspect}"
+#         form.project.should be_valid
+#       end
+
+#       it "should not raise error on 'save!'" do
+#         expect{ form.save! }.to_not raise_error
+#       end
+     end
+
+    context "with invalid, marked for destruction nested model" do
+      let(:attributes) do {
+        :company_name => "dummycorp",
+        :project_name => "railsapp",
+        "due_date(1i)" => "2014",
+        "due_date(2i)" => "10",
+        "due_date(3i)" => "30",
+        :tasks_attributes => {
+          "0" => {
+            :name => "task_1",
+            "start_date(1i)" => "2012",
+            "start_date(2i)" => "1",
+            "start_date(3i)" => "2",
+          },
+          "1" => {
+            :name => "task_2",
+            "end_date(1i)" => "2011",
+            "end_date(2i)" => "12",
+            "end_date(3i)" => "15",
+            :_destroy => "1"
+          }
+        } }
+      end
+
+      before(:each) do
+        form.fill(attributes)
+      end
+
+      it { is pending }
+#       it "should return true on 'save'" do
+#         form.save.should be_true
+#       end
+
+#       it "should have valid company and project after save", :failing_1 => true do
+#         form.save
+# #        form.tasks.first.task.destroy
+#         form.company.should be_valid
+#         form.project.valid?
+#         puts "Errors = #{form.project.errors.inspect}"
+#         form.project.should be_valid
+#       end
+
+#       it "should not raise error on 'save!'" do
+#         expect{ form.save! }.to_not raise_error
+#       end
+     end
 
     context "with valid attributes" do
       let(:attributes) do {
