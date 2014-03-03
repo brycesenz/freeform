@@ -59,8 +59,9 @@
     newId: function(assoc) {
       // Instead, I should try to count the number of matches so far, then add 1
       // return new Date().getTime();
-      count = $('div.fields a[data-association*="' + assoc + '"]').length;
-      return count;
+      // This is close, but it doesn't work if there is not link_to_remove
+      // return $('div.fields a[data-association*="' + assoc + '"]').length;
+      return new Date().getTime();
     },
     insertFields: function(content, assoc, link) {
       var target = $(link).data('target');
