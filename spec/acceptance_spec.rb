@@ -47,9 +47,9 @@ describe FreeForm::Form do
   end
 
   let(:form) do
-    f = form_class.new( :company => Company.new )
-    f.build_task
-    f
+    form_class.new( :company => Company.new ).tap do |f|
+      f.build_task
+    end
   end
 
   describe "form initialization", :initialization => true do
@@ -378,7 +378,7 @@ describe FreeForm::Form do
       end
     end
 
-    context "with invalid attributes, and marked for destruction nested model", :failing => true do
+    context "with invalid attributes, and marked for destruction nested model" do
       let(:attributes) do {
         :company_name => "dummycorp",
         :project_name => "",
@@ -418,7 +418,7 @@ describe FreeForm::Form do
         end
       end
 
-#       it "should have valid company and project after save", :failing_1 => true do
+#       it "should have valid company and project after save", :failing => true do
 #         form.save
 # #        form.tasks.first.task.destroy
 #         form.company.should be_valid
@@ -461,23 +461,27 @@ describe FreeForm::Form do
       end
 
       it { is pending }
-#       it "should return true on 'save'" do
-#         form.save.should be_true
-#       end
 
-#       it "should have valid company and project after save", :failing_1 => true do
+#       it "should have valid company and project after save", :failing => true do
 #         form.save
-# #        form.tasks.first.task.destroy
+# #        form.tasks.last.task.destroy
+# #        form.valid?
 #         form.company.should be_valid
 #         form.project.valid?
-#         puts "Errors = #{form.project.errors.inspect}"
+#         # puts "Errors = #{form.project.errors.inspect}"
+
+#         # form.project.tasks.each do |task|
+#         #   puts "Task = #{task.inspect}"
+#         #   puts "Valid = #{task.valid?}"
+#         #   puts "Errors = #{task.errors.inspect}"
+#         # end
 #         form.project.should be_valid
 #       end
 
-#       it "should not raise error on 'save!'" do
-#         expect{ form.save! }.to_not raise_error
-#       end
-     end
+# #       it "should not raise error on 'save!'" do
+# #         expect{ form.save! }.to_not raise_error
+# #       end
+      end
 
     context "with valid attributes" do
       let(:attributes) do {
