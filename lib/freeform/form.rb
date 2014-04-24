@@ -32,7 +32,7 @@ module FreeForm
     def save
       return false unless valid? || marked_for_destruction?
 
-      # Save myself first
+      # Save or destroy myself.
       self.class.models.each do |form_model|
         model = send(form_model)
         # This is for form models.
@@ -45,7 +45,7 @@ module FreeForm
         end
       end
 
-      # Then save any nested models
+      # Loop through nested models sending them the save call
       self.class.models.each do |form_model|
         model = send(form_model)
         # This is for nested models.
