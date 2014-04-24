@@ -29,38 +29,10 @@ module FreeForm
       initialize_child_models
     end
 
-    # def save
-    #   return false unless valid?
-
-    #   self.class.models.each do |form_model|
-    #     model = send(form_model)
-    #     model.is_a?(Array) ? model.each { |m| m.save } : save_or_destroy(model)
-    #   end
-    # end
-
-    # def save!
-    #   raise FreeForm::FormInvalid, "form invalid." unless valid?
-
-    #   self.class.models.each do |form_model|
-    #     model = send(form_model)
-    #     model.is_a?(Array) ? model.each { |m| m.save! } : save_or_destroy!(model)
-    #   end
-    # end
-
-
     def save
       return false unless valid? || marked_for_destruction?
 
-      # Loop through nested models first, sending them the save call
-      self.class.models.each do |form_model|
-        model = send(form_model)
-        # This is for nested models.
-        if model.is_a?(Array)
-          model.each { |m| m.save }
-        end
-      end
-
-      # After nested models are handled, save or destroy myself.
+      # Save myself first
       self.class.models.each do |form_model|
         model = send(form_model)
         # This is for form models.
@@ -70,6 +42,15 @@ module FreeForm
           else
             model.save
           end
+        end
+      end
+
+      # Then save any nested models
+      self.class.models.each do |form_model|
+        model = send(form_model)
+        # This is for nested models.
+        if model.is_a?(Array)
+          model.each { |m| m.save }
         end
       end
     end
