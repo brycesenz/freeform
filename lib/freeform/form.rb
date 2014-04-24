@@ -35,6 +35,7 @@ module FreeForm
       # Save or destroy myself.
       self.class.models.each do |form_model|
         model = send(form_model)
+        puts "Model = #{model.inspect}"
         # This is for form models.
         unless model.is_a?(Array)
           if marked_for_destruction?
@@ -49,6 +50,7 @@ module FreeForm
       self.class.models.each do |form_model|
         model = send(form_model)
         # This is for nested models.
+        puts "Nested Model = #{model.inspect}"
         if model.is_a?(Array)
           model.each { |m| m.save }
         end
