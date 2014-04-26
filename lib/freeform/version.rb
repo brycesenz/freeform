@@ -1,3 +1,3 @@
 module Freeform
-  VERSION = "1.0.11rc1"
+  VERSION = "2.0.0rc1"
 end

@@ -30,60 +30,19 @@ module FreeForm
     end
 
     def save
-      return false unless valid? || marked_for_destruction?
-
-      # Save or destroy myself.
-      self.class.models.each do |form_model|
-        model = send(form_model)
-        puts "Model = #{model.to_s}"
-        # This is for form models.
-        unless model.is_a?(Array)
-          if marked_for_destruction?
-            model.destroy
-          else
-            if model.save
-            else
-              puts "Save errors = #{model.errors.inspect}"
-            end
-          end
-        end
-      end
-
-      # Loop through nested models sending them the save call
-      self.class.models.each do |form_model|
-        model = send(form_model)
-        # This is for nested models.
-        if model.is_a?(Array)
-          model.each { |m| m.save }
-        end
-      end
     end
 
     def save!
       raise FreeForm::FormInvalid, "form invalid." unless valid?
+    end
 
-      self.class.models.each do |form_model|
-        model = send(form_model)
-        model.is_a?(Array) ? model.each { |m| m.save! } : save_or_destroy!(model)
-      end
+    def destroy
     end
 
   private
     def initialize_child_models
       self.class.child_models.each do |c|
         send("initialize_#{c}")
-      end
-    end
-
-    def save_or_destroy(model)
-      marked_for_destruction? ? model.destroy : model.save
-    end
-
-    def save_or_destroy!(model)
-      if marked_for_destruction?
-        model.destroy
-      else
-        model.save!
       end
     end
 
