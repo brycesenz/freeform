@@ -6,59 +6,78 @@ module FreeForm
     end
 
     module ClassMethods
+      def validate_nested_forms
+        validate :validate_nested_forms
+      end
+
       def validate_models
-        validate :model_validity
+        validate :validate_component_models
       end
     end
 
   protected
-    def model_validity
-      self.class.models.each do |form_model|
-        if send(form_model).is_a?(Array)
-          # If it's an array, we're dealing with nested forms
-          errors.add(:base, "has invalid nested forms") unless validate_nested_forms(send(form_model))
-        else
-          # Otherwise, validate the form object
-          validate_form_model(form_model)
+    def validate_nested_forms
+      models.each do |model|
+        # Validate nested form models
+        if model.is_a?(FreeForm::Form)
+          errors.add(:base, "has invalid nested forms") unless validate_nested_form(model)
+        end
+      end
+    end
+
+    def validate_component_models
+      models.each do |model|
+        # Validate non-nested models
+        unless model.is_a?(FreeForm::Form)
+          validate_model(model)
         end
       end
     end
 
   private
-    def validate_nested_forms(form_array)
-      form_validity = true
-      form_array.each do |model|
-        destroyed = model.respond_to?(:marked_for_destruction?) ? model.marked_for_destruction? : false
-        unless model.valid? || destroyed
-          form_validity = false
-        end
-      end
-      form_validity
+    def validate_nested_form(nested_form_model)
+      (form_marked_for_destruction?(nested_form_model) || nested_form_model.valid?)
     end
 
-    def validate_form_model(form_model)
-      model = send(form_model)
-      append_errors(form_model)
-      model.valid?
+    def form_marked_for_destruction?(form)
+      form.respond_to?(:marked_for_destruction?) ? form.marked_for_destruction? : false
     end
 
-    def append_errors(form_model)
-      model = send(form_model)
+    def validate_model(model)
       model.valid?
+
       model.errors.each do |error, message|
-        if find_form_field_from_model_field(form_model, error)
-          self.errors.add(find_form_field_from_model_field(form_model, error), message)
+        field = find_form_field_from_model_field(model, error)
+        if field
+          errors.add(field, message)
         end
       end
     end
 
-    def find_form_field_from_model_field(model, field)
-      self.class.property_mappings.each_pair do |property, attributes|
-        if (attributes[:model] == model.to_sym) && (attributes[:field] == field.to_sym)
+    def find_form_field_from_model_field(model, error_field)
+      model_property_mappings.each_pair do |property, attributes|
+        model_sym = model_symbol_from_model(model)
+        field_sym = error_field.to_sym
+
+        if (attributes[:model] == model_sym) && (attributes[:field] == field_sym)
           return property
         end
       end
-      false
+      nil
+    end
+
+    def model_symbol_from_model(model)
+      self.class.models.each do |model_sym|
+        if send(model_sym.to_sym) == model
+          return model_sym.to_sym
+        end
+      end
+      nil
+    end
+
+    #TODO: This should be a part of the property module.
+    def model_property_mappings
+      self.class.property_mappings
     end
   end
 end

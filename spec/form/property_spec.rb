@@ -302,10 +302,16 @@ describe FreeForm::Property do
   end
 
   describe "instance methods", :instance_methods => true do
-    describe "parent_form", :parent_form => true do
+    describe "models", :models => true do
+      let(:model_1) { OpenStruct.new(:name => "first") }
+      let(:model_2) { OpenStruct.new(:name => "second") }
+      let(:address_1) { OpenStruct.new(:name => "main st.") }
+      let(:address_2) { OpenStruct.new(:name => "oak ave.") }
+
       let(:form_class) do
         Class.new(Module) do
           include FreeForm::Property
+          include FreeForm::Nested
           declared_model :first_model
           declared_model :second_model
           
@@ -313,30 +319,61 @@ describe FreeForm::Property do
           property :attribute_2, :on => :first_model, :ignore_blank => true
           property :attribute_3, :on => :second_model, :ignore_blank => true
           property :attribute_4, :on => :second_model
+
+          has_many :addresses do
+            declared_model :address
+          
+            property :street, :on => :address
+          end
   
           def initialize(h)
             h.each {|k,v| send("#{k}=",v)}
+          end
+
+          def address_initializer
+            { :address => OpenStruct.new }
           end
         end
       end
   
       let(:form) do
-        form_class.new(
-          :first_model  => OpenStruct.new(:attribute_1 => "first", :attribute_2 => "second"),
-          :second_model => OpenStruct.new(:attribute_3 => "third", :attribute_4 => "fourth"),
-        )
+        form_class.new(:first_model  => model_1, :second_model => model_2)
       end
-      
-      it "has parent_form as nil by default" do
-        form.parent_form.should be_nil
+
+      context "without nested models" do
+        it "returns array of models " do
+          form.models.should eq([model_1, model_2])
+        end
       end
-      
-      it "has can assign and reference parent_form" do
-        parent = Module.new
-        form.parent_form = parent
-        form.parent_form.should eq(parent)
+
+      context "without nested models" do
+        before(:each) do
+          form.build_address(:address => address_1)
+          form.build_address(:address => address_2)
+        end
+
+        it "returns array of models" do
+          form.models.should be_a(Array)
+        end
+
+        it "has model_1 as its first model" do
+          form.models[0].should eq(model_1)
+        end
+
+        it "has model_2 as its second model" do
+          form.models[1].should eq(model_2)
+        end
+
+        it "has nested model form for address_1 as its third model" do
+          form.models[2].address.should eq(address_1)
+        end
+
+        it "has nested model form for address_2 as its fourth model" do
+          form.models[3].address.should eq(address_2)
+        end
       end
     end
+
     describe "assign_attributes", :assign_attributes => true do
       let(:form_class) do
         Class.new(Module) do

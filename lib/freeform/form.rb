@@ -30,13 +30,30 @@ module FreeForm
     end
 
     def save
+      self.class.models.each do |form_model|
+        model = send(form_model)
+        if model.is_a?(Array)
+          model.each { |m| m.save }
+        else
+          persist_or_destroy(model)
+        end
+      end
     end
 
     def save!
       raise FreeForm::FormInvalid, "form invalid." unless valid?
+      save
     end
 
     def destroy
+      self.class.models.each do |form_model|
+        model = send(form_model)
+        if model.is_a?(Array)
+          model.each { |m| m.destroy }
+        else
+          model.destroy
+        end
+      end
     end
 
   private
@@ -48,6 +65,14 @@ module FreeForm
 
     def marked_for_destruction?
       respond_to?(:_destroy) ? _destroy : false
+    end
+
+    def persist_or_destroy(model)
+      # if model.marked_for_destruction?
+      #   model.destroy
+      # else
+      #   model.save
+      # end
     end
   end
 end

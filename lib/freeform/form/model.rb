@@ -1,7 +1,7 @@
 require 'freeform/form/date_params_filter'
 
 module FreeForm
-  module Property
+  module Model
     def self.included(base)
       base.extend(ClassMethods)
     end
@@ -87,16 +87,6 @@ module FreeForm
             send("#{model}").send("#{attribute}=", value)
           end
         end
-      end
-    end
-
-    # Instance Methods
-    def models
-      Array.new.tap do |a|
-        self.class.models.each do |form_model|
-          a << send(form_model)
-        end
-        a.flatten!
       end
     end
 

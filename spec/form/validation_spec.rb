@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe FreeForm::Validation do
   let(:user) do
-    model = Class.new(Module) do
+    Class.new(Module) do
       include ActiveModel::Validations
       def self.model_name; ActiveModel::Name.new(self, nil, "user") end
 
@@ -12,11 +12,10 @@ describe FreeForm::Validation do
       def save; return valid? end
       alias_method :save!, :save
     end.new
-    model
   end
 
   let(:address) do
-    model = Class.new(Module) do
+    Class.new(Module) do
       include ActiveModel::Validations
       def self.model_name; ActiveModel::Name.new(self, nil, "address") end
 
@@ -27,23 +26,27 @@ describe FreeForm::Validation do
       def save; return valid? end
       alias_method :save!, :save
     end.new
-    model
   end
 
-  context "without model validation", :without_validation => true do
+  context "with nested form validation", :nested_form_validation => true do
     let(:form_class) do
       klass = Class.new(Module) do
         include ActiveModel::Validations
         include FreeForm::Property
         include FreeForm::Nested
         include FreeForm::Validation
+        validate_nested_forms
+
         form_model :user
         property :username, :on => :user
         validates :username, :presence => true
         
         nested_form :addresses do
-          declared_model :address          
+          declared_model :address
+          allow_destroy_on_save
+
           property :street, :on => :address
+          validates :street, :presence => true
         end
         
         def address_initializer
@@ -78,7 +81,24 @@ describe FreeForm::Validation do
 
     it "does not have errors on address" do
       form.valid?
-      form.addresses.first.errors.should be_empty
+      form.addresses.first.errors[:street].should eq(["can't be blank"])
+    end
+
+    context "with valid model, invalid nested model" do
+      before(:each) do
+        form.assign_params(:username => "bob", :addresses_attributes => { 
+          "0" =>
+            {
+              :street => nil
+            }
+          }
+        )
+      end
+
+      it "should be valid" do
+        address_form = form.addresses.first
+        form.should_not be_valid
+      end
     end
   end
 
@@ -91,6 +111,7 @@ describe FreeForm::Validation do
         include FreeForm::Validation
         form_model :user
         validate_models
+        validate_nested_forms
         property :username, :on => :user
         property :form_property
 
@@ -137,7 +158,7 @@ describe FreeForm::Validation do
       form.errors[:form_property].should eq(["can't be blank"])
     end
 
-    it "has error on address street" do
+    it "has error on address street", :failing => true do
       form.valid?
       form.addresses.first.errors[:street].should eq(["can't be blank"])
     end
