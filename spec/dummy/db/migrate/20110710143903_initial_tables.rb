@@ -5,25 +5,25 @@ class InitialTables < ActiveRecord::Migration
     end
 
     create_table :projects do |t|
-      t.integer :company_id
+      t.references :owner, :polymorphic => true, :null => false
       t.string :name
       t.date :due_date
     end
 
     create_table :tasks do |t|
-      t.integer :project_id
+      t.references :project, :null => false
       t.string :name
       t.date :start_date
       t.date :end_date
     end
 
     create_table :milestones do |t|
-      t.integer :task_id
+      t.references :trackable, :polymorphic => true, :null => false
       t.string :name
     end
 
     create_table :project_tasks do |t|
-      t.integer :project_id
+      t.references :project, :null => false
       t.string :name
     end
   end

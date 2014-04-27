@@ -18,23 +18,25 @@ ActiveRecord::Schema.define(:version => 20110710143903) do
   end
 
   create_table "milestones", :force => true do |t|
-    t.integer "task_id"
+    t.integer "trackable_id",   :null => false
+    t.string  "trackable_type", :null => false
     t.string  "name"
   end
 
   create_table "project_tasks", :force => true do |t|
-    t.integer "project_id"
+    t.integer "project_id", :null => false
     t.string  "name"
   end
 
   create_table "projects", :force => true do |t|
-    t.integer "company_id"
+    t.integer "owner_id",   :null => false
+    t.string  "owner_type", :null => false
     t.string  "name"
     t.date    "due_date"
   end
 
   create_table "tasks", :force => true do |t|
-    t.integer "project_id"
+    t.integer "project_id", :null => false
     t.string  "name"
     t.date    "start_date"
     t.date    "end_date"

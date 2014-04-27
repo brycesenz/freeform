@@ -19,6 +19,10 @@ module FreeForm
     include FreeForm::Property
     include FreeForm::Validation
 
+    # Default Validations
+    #----------------------------------------------------------------------------
+    validate_nested_forms
+
     # Instance Methods
     #----------------------------------------------------------------------------
     # Required for ActiveModel
@@ -28,6 +32,7 @@ module FreeForm
       h.each {|k,v| send("#{k}=",v)}
       initialize_child_models
     end
+
 
     def save
       self.class.models.each do |form_model|

@@ -39,7 +39,7 @@ describe FreeForm::Form do
   end
 
   let(:company) { Company.create!(:name => "Demo Corporation") }
-  let(:project) { Project.create!(:company => company, :name => "Widget", :due_date => Date.new(2014, 1, 1)) }
+  let(:project) { Project.create!(:owner => company, :name => "Widget", :due_date => Date.new(2014, 1, 1)) }
   let(:task_1)  { Task.create!(:project => project, :name => "Task 1", :start_date => Date.new(2014, 2, 2), :end_date => Date.new(2014, 3, 3)) }
   let(:task_2)  { Task.create!(:project => project, :name => "Task 2", :start_date => Date.new(2014, 9, 1), :end_date => Date.new(2014, 10, 1)) }
 

@@ -1,6 +1,6 @@
 class Milestone < ActiveRecord::Base
-  belongs_to :task
+  belongs_to :trackable, :polymorphic => true
 
-  validates :task, :presence => true
+  validates :trackable, :presence => true
   validates :name, :presence => true
 end
