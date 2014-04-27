@@ -14,11 +14,6 @@ describe FreeForm::Nested do
       
       has_many :mailing_addresses, :default_initializer => :mailing_address_initializer do
         declared_model :address
-      
-        def initialize(h={})
-          h.each {|k,v| send("#{k}=",v)}
-        end  
-
         property :street, :on => :address            
       end
 
@@ -28,11 +23,6 @@ describe FreeForm::Nested do
 
       has_many :phone_numbers, :default_initializer => :phone_number_initializer do
         declared_model :phone
-        
-        def initialize(h={})
-          h.each {|k,v| send("#{k}=",v)}
-        end  
-
         property :number, :on => :phone        
       end
 
@@ -86,70 +76,57 @@ describe FreeForm::Nested do
   end
   
   describe "building nested models" do
-    # it "initializes with no nested models prebuilt" do
-    #   form.mailing_addresses.should eq([])
-    #   form.phone_numbers.should eq([])
-    # end
-    
-    # context "with default initializer" do
-    #   context "for mailing addresses" do
-    #     it "allows nested_forms to be built" do
-    #       form.build_mailing_addresses
-    #       form.mailing_addresses.should be_an(Array)
-    #       form.mailing_addresses.should_not be_empty
-    #       form.mailing_addresses.first.should be_a(Module::MailingAddressForm)
-    #     end
-  
-    #     it "does not add to other has_many array" do
-    #       form.build_mailing_addresses
-    #       form.phone_numbers.should eq([])
-    #     end
+    it "responds to mailing_addresses" do
+      form.should respond_to(:mailing_addresses)
+    end
 
-    #     it "builds unique models" do
-    #       form = form_class.new
-    #       form.build_mailing_address
-    #       form.build_mailing_address
-    #       address_1 = form.mailing_addresses.first.address
-    #       address_2 = form.mailing_addresses.last.address
-    #       address_1.should_not eq(address_2)
-    #     end
-    #   end
+    it "responds to phone_numbers" do
+      form.should respond_to(:phone_numbers)
+    end
 
-    #   context "for phone numbers" do
-    #     it "allows nested_forms to be built" do
-    #       form.build_phone_number
-    #       form.phone_numbers.should be_an(Array)
-    #       form.phone_numbers.should_not be_empty
-    #       form.phone_numbers.first.should be_a(Module::PhoneNumberForm)
-    #     end
-  
-    #     it "does not add to other has_many array" do
-    #       form.build_phone_numbers
-    #       form.mailing_addresses.should eq([])
-    #     end
+    it "initializes with no nested models prebuilt" do
+      form.mailing_addresses.should eq([])
+      form.phone_numbers.should eq([])
+    end
 
-    #     it "builds unique models" do
-    #       form = form_class.new
-    #       form.build_phone_number
-    #       form.build_phone_number
-    #       phone_1 = form.phone_numbers.first.phone
-    #       phone_2 = form.phone_numbers.last.phone
-    #       phone_1.should_not eq(phone_2)
-    #     end
-    #   end
-    # end
+    describe "building new nested models" do
+      it "can build new nested model" do
+        form.build_mailing_address
+        form.mailing_addresses.should_not be_empty
+        form.mailing_addresses.first.should be_a(Module::ParentForm::MailingAddress)
+      end
+
+      it "builds unique models" do
+        form.build_mailing_address
+        form.build_mailing_address
+        address_model_1 = form.mailing_addresses.first
+        address_model_2 = form.mailing_addresses.last
+        address_model_1.should_not eq(address_model_2)
+        address_model_1.address.should_not eq(address_model_2.address)
+      end
+
+      it "builds with correct default initializer" do
+        address_model = form.build_mailing_address
+        address_model.address.should be_a(OpenStruct)
+      end
+
+      it "builds with custom initializer" do
+        address_model = form.build_mailing_address({:address => Date.new})
+        address_model.address.should be_a(Date)
+      end
+    end    
   end
   
   describe "setting attributes" do
-    # describe "nested attribute assignment" do
-    #   let(:attributes) do
-    #     { :mailing_addresses_attributes => { "0" => { :street => "123 Main St." } } }
-    #   end
+    describe "nested attribute assignment" do
+      let(:attributes) do
+        { :mailing_addresses_attributes => { "0" => { :street => "123 Main St." } } }
+      end
 
-    #   it "assigns nested attributes" do
-    #     form.fill(attributes)
-    #     form.mailing_addresses.first.street.should eq("123 Main St.")
-    #   end
-    # end
+      it "assigns nested attributes" do
+        form.fill(attributes)
+        form.mailing_addresses.first.street.should eq("123 Main St.")
+      end
+    end
   end      
 end
