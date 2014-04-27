@@ -35,14 +35,19 @@ module FreeForm
 
 
     def save
-      self.class.models.each do |form_model|
-        model = send(form_model)
-        if model.is_a?(Array)
-          model.each { |m| m.save }
-        else
-          persist_or_destroy(model)
-        end
+      return false unless valid?
+
+      # Destroy all marked for destruction first
+      models.each do |m|
+        m.destroy if m.marked_for_destruction?
       end
+
+      # Then, persist all models
+      models.each do |m|
+        m.save unless m.marked_for_destruction?
+      end
+
+      return true
     end
 
     def save!
@@ -51,20 +56,8 @@ module FreeForm
     end
 
     def destroy
-      self.class.models.each do |form_model|
-        model = send(form_model)
-        if model.is_a?(Array)
-          model.each { |m| m.destroy }
-        else
-          model.destroy
-        end
-      end
-    end
-
-  private
-    def initialize_child_models
-      self.class.child_models.each do |c|
-        send("initialize_#{c}")
+      models.each do |m|
+        m.destroy
       end
     end
 
@@ -72,12 +65,11 @@ module FreeForm
       respond_to?(:_destroy) ? _destroy : false
     end
 
-    def persist_or_destroy(model)
-      # if model.marked_for_destruction?
-      #   model.destroy
-      # else
-      #   model.save
-      # end
+  private
+    def initialize_child_models
+      self.class.child_models.each do |c|
+        send("initialize_#{c}")
+      end
     end
   end
 end
