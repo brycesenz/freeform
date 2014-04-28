@@ -9,42 +9,6 @@ module FreeForm
     module ClassMethods
       include Forwardable
 
-      # Models
-      #------------------------------------------------------------------------
-      # def models
-      #   @models ||= []
-      # end
-
-      # def child_models
-      #   @child_models ||= []
-      # end
-
-      # def declared_models(*names)
-      #   names.each do |name|
-      #     declared_model(name)
-      #   end
-      # end
-      # alias_method :form_models, :declared_models
-
-      # def declared_model(name, opts={})
-      #   attr_accessor name
-      #   @models = (@models || []) << name
-      # end
-      # alias_method :form_model, :declared_model
-
-      # def child_model(name, opts={}, &block)
-      #   declared_model(name)
-      #   @child_models = (@child_models || []) << name
-
-      #   # Defines an initializer method, such as 'initialize_address' 
-      #   #  that can be called on form initialization to build the model
-      #   define_method("initialize_#{name}") do
-      #     instance_variable_set("@#{name}", instance_eval(&block))
-      #   end
-      # end
-
-      # Properties
-      #------------------------------------------------------------------------
       def property_mappings
         # Take the form of {:property => {:model => model, :field => field, :ignore_blank => false}}
         @property_mappings ||= Hash.new
@@ -90,16 +54,6 @@ module FreeForm
       end
     end
 
-    # Instance Methods
-    # def models
-    #   Array.new.tap do |a|
-    #     self.class.models.each do |form_model|
-    #       a << send(form_model)
-    #     end
-    #     a.flatten!
-    #   end
-    # end
-
     def assign_params(params)
       self.tap do |s|
         FreeForm::DateParamsFilter.new.call(params)
@@ -112,14 +66,22 @@ module FreeForm
     alias_method :populate, :assign_params
     alias_method :fill, :assign_params
 
+    def model_property_mappings
+      self.class.property_mappings
+    end
+
   private
     def assign_attribute(attribute, value)
       self.send :"#{attribute}=", value unless ignore?(attribute, value)
     end
 
     def ignore?(attribute, value)
-      mapping = self.class.property_mappings[attribute.to_sym]
-      return (mapping[:ignore_blank] && value.blank?) unless mapping.nil?
+      mapping = model_property_mappings[attribute.to_sym]
+      if mapping.present?
+        mapping[:ignore_blank] && value.blank?
+      else
+        false
+      end
     end
   end
 end

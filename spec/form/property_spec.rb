@@ -188,5 +188,59 @@ describe FreeForm::Property do
         form.attribute_1.should eq(Date.new(2013, 6, 5))
       end
     end
+
+    describe "model_property_mappings", :model_property_mappings => true do
+      let(:form_class) do
+        Class.new(Module) do
+          include FreeForm::Model
+          include FreeForm::Property
+          declared_model :first_model
+          declared_model :second_model
+          
+          property :attribute_1, :on => :first_model
+          property :attribute_2, :on => :first_model, :ignore_blank => true
+          property :attribute_3, :on => :second_model, :ignore_blank => true
+          property :attribute_4, :on => :second_model
+  
+          def initialize(h)
+            h.each {|k,v| send("#{k}=",v)}
+          end
+        end
+      end
+  
+      let(:form) do
+        form_class.new(
+          :first_model  => OpenStruct.new(:attribute_1 => "first", :attribute_2 => "second"),
+          :second_model => OpenStruct.new(:attribute_3 => "third", :attribute_4 => "fourth"),
+        )
+      end
+      
+      it "has correct model_property_mappings hash" do
+        form.model_property_mappings.should eq(
+          {
+            :attribute_1 => {
+              :model => :first_model, 
+              :field => :attribute_1, 
+              :ignore_blank => false,
+            },
+            :attribute_2 => {
+              :model => :first_model, 
+              :field => :attribute_2, 
+              :ignore_blank => true,
+            },
+            :attribute_3 => {
+              :model => :second_model, 
+              :field => :attribute_3, 
+              :ignore_blank => true,
+            },
+            :attribute_4 => {
+              :model => :second_model, 
+              :field => :attribute_4, 
+              :ignore_blank => false,
+            },
+          }
+        )
+      end
+    end
   end
 end

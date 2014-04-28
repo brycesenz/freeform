@@ -17,40 +17,41 @@ module FreeForm
 
   protected
     def validate_nested_forms
-      models.each do |model|
-        # Validate nested form models
-        if model.is_a?(FreeForm::Form)
-          errors.add(:base, "has invalid nested forms") unless validate_nested_form(model)
-        end
-      end
+      models.each { |m| validate_nested_form(m) if m.is_a?(FreeForm::Form) }
     end
 
     def validate_component_models
-      models.each do |model|
-        # Validate non-nested models
-        unless model.is_a?(FreeForm::Form)
-          validate_model(model)
-        end
-      end
+      models.each { |m| validate_model(m) unless m.is_a?(FreeForm::Form) }
     end
 
   private
-    def validate_nested_form(nested_form_model)
-      (form_marked_for_destruction?(nested_form_model) || nested_form_model.valid?)
+    def validate_nested_form(form)
+      errors.add(:base, "has invalid nested forms") unless marked_for_destruction_or_valid?(form)
+    end
+
+    def validate_model(model)
+      model.valid?
+      add_model_errors_to_form(model)
+    end
+
+    def marked_for_destruction_or_valid?(form)
+      form_marked_for_destruction?(form) || form.valid?
     end
 
     def form_marked_for_destruction?(form)
       form.respond_to?(:marked_for_destruction?) ? form.marked_for_destruction? : false
     end
 
-    def validate_model(model)
-      model.valid?
-
+    def add_model_errors_to_form(model)
       model.errors.each do |error, message|
-        field = find_form_field_from_model_field(model, error)
-        if field
-          errors.add(field, message)
-        end
+        add_error_to_form(model, error, message)
+      end
+    end
+
+    def add_error_to_form(model, error, message)
+      field = find_form_field_from_model_field(model, error)
+      if field
+        errors.add(field, message)
       end
     end
 
@@ -67,17 +68,11 @@ module FreeForm
     end
 
     def model_symbol_from_model(model)
-      self.class.models.each do |model_sym|
-        if send(model_sym.to_sym) == model
-          return model_sym.to_sym
-        end
-      end
-      nil
+      models_as_symbols.find { |sym| return sym if send(sym) == model }
     end
 
-    #TODO: This should be a part of the property module.
-    def model_property_mappings
-      self.class.property_mappings
+    def models_as_symbols
+      self.class.models.map { |x| x.to_sym }
     end
   end
 end
