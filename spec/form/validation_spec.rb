@@ -32,6 +32,7 @@ describe FreeForm::Validation do
     let(:form_class) do
       klass = Class.new(Module) do
         include ActiveModel::Validations
+        include FreeForm::Model
         include FreeForm::Property
         include FreeForm::Nested
         include FreeForm::Validation
@@ -106,6 +107,7 @@ describe FreeForm::Validation do
     let(:form_class) do
       klass = Class.new(Module) do
         include ActiveModel::Validations
+        include FreeForm::Model
         include FreeForm::Property
         include FreeForm::Nested
         include FreeForm::Validation

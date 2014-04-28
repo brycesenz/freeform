@@ -5,6 +5,7 @@ require 'freeform/form/nested'
 describe FreeForm::Nested do
   let(:form_class) do
     klass = Class.new(Module) do
+      include FreeForm::Model
       include FreeForm::Property
       include FreeForm::Nested
       

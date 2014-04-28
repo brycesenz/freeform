@@ -2,6 +2,7 @@ require 'forwardable'
 require 'ostruct'
 require 'active_model'
 require 'freeform/form/form_input_key'
+require 'freeform/form/model'
 require 'freeform/form/nested'
 require 'freeform/form/property'
 require 'freeform/form/validation'
@@ -15,6 +16,7 @@ module FreeForm
     include ActiveModel::Conversion
     include ActiveModel::Validations
     include FreeForm::FormInputKey
+    include FreeForm::Model
     include FreeForm::Nested
     include FreeForm::Property
     include FreeForm::Validation
@@ -32,7 +34,6 @@ module FreeForm
       h.each {|k,v| send("#{k}=",v)}
       initialize_child_models
     end
-
 
     def save
       if valid?
