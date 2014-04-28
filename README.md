@@ -10,11 +10,13 @@ FreeForm is designed primarily with Rails in mind, but it should work on any Rub
 
 **FreeForm will not work with Ryan Bate's nested_form gem, but provides its own identical behavior**
 
+Please use/migrate to version 2.x of this gem.  Version 1.x will no longer be supported, and version 2.x provides a better DSL, additional features, and cleaner source code.
+
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'freeform', '>= 1.0.0'
+    gem 'freeform', '>= 2.0.0'
 
 And then execute:
 
@@ -198,19 +200,18 @@ class UserForm < FreeForm::Form
   property :username,              :on => :user
   property :email,                 :on => :user
 
-  has_many :phone_numbers, :class => PhoneNumberForm, :default_initializer => :phone_initializer
+  has_many :phone_numbers do
+    form_models :phone
+
+    property :area_code,              :on => :phone
+    property :number,                 :on => :phone
+  end
 
   def phone_initializer
     { :phone => user.phone_numbers.build }
   end
 end
 
-class PhoneNumberForm < FreeForm::Form
-  form_models :phone
-
-  property :area_code,              :on => :phone
-  property :number,                 :on => :phone
-end
 ```
 **Note:**  The method `nested_form` is also aliased as `has_many` and `has_one`, if you prefer the expressiveness of that syntax.  The functionality is the same in any case.
 
@@ -235,18 +236,16 @@ class UserForm < FreeForm::Form
   property :username,              :on => :user
   property :email,                 :on => :user
 
-  has_many :phone_numbers, :class => PhoneNumberForm, :default_initializer => :phone_initializer
+  has_many :phone_numbers do
+    form_models :phone
+
+    property :area_code,              :on => :phone
+    property :number,                 :on => :phone
+  end
 
   def phone_initializer
     { :phone => user.phone_numbers.build }
-  end
-end
-
-class PhoneNumberForm < FreeForm::Form
-  form_models :phone
-
-  property :area_code,              :on => :phone
-  property :number,                 :on => :phone
+  end  
 end
 
 form = UserForm.new(:user => current_user)
