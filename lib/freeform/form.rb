@@ -35,30 +35,25 @@ module FreeForm
 
 
     def save
-      return false unless valid?
-
-      # Destroy all marked for destruction first
-      models.each do |m|
-        m.destroy if m.marked_for_destruction?
+      if valid?
+        models.each { |m| m.destroy if m.marked_for_destruction? }
+        models.each { |m| m.save unless m.marked_for_destruction? }
+        true
+      else
+        false
       end
-
-      # Then, persist all models
-      models.each do |m|
-        m.save unless m.marked_for_destruction?
-      end
-
-      return true
     end
 
     def save!
-      raise FreeForm::FormInvalid, "form invalid." unless valid?
-      save
+      if valid?
+        save
+      else
+        raise FreeForm::FormInvalid, "form invalid." 
+      end
     end
 
     def destroy
-      models.each do |m|
-        m.destroy
-      end
+      models.each { |m| m.destroy }
     end
 
     def marked_for_destruction?

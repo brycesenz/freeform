@@ -22,3 +22,9 @@ Capybara.javascript_driver = :selenium
 RSpec.configure do |config|
   config.mock_with :rspec
 end
+
+RSpec::Matchers.define :exist_in_database do
+  match do |actual|
+    actual.class.exists?(actual.id)
+  end
+end

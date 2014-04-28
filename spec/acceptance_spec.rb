@@ -7,7 +7,7 @@ describe FreeForm::Form do
       form_input_key :company
       form_models :company
       child_model :project do
-        company.project.present? ? company.project : company.build_project
+        company.project || company.build_project
       end
       validate_models
       allow_destroy_on_save
@@ -277,362 +277,197 @@ describe FreeForm::Form do
     end
   end
 
-  it { is pending }
-  # describe "saving and destroying", :saving => true do
-  #   context "with invalid attributes" do
-  #     let(:attributes) do {
-  #       :company_name => "dummycorp",
-  #       :project_name => nil,
-  #       "due_date(1i)" => "2014",
-  #       "due_date(2i)" => "10",
-  #       "due_date(3i)" => "30",
-  #       :tasks_attributes => {
-  #         "0" => {
-  #           :name => "task_1",
-  #           "start_date(1i)" => "2012",
-  #           "start_date(2i)" => "1",
-  #           "start_date(3i)" => "2",
-  #         },
-  #         "1" => {
-  #           :name => "task_2",
-  #           "end_date(1i)" => "2011",
-  #           "end_date(2i)" => "12",
-  #           "end_date(3i)" => "15",
-  #         }
-  #       } }
-  #     end
+  describe "saving and destroying", :saving => true do
+    context "with invalid attributes" do
+      let(:attributes) do {
+        :company_name => "dummycorp",
+        :project_name => nil,
+        "due_date(1i)" => "2014",
+        "due_date(2i)" => "10",
+        "due_date(3i)" => "30",
+        :tasks_attributes => {
+          "0" => {
+            :name => "task_1",
+            "start_date(1i)" => "2012",
+            "start_date(2i)" => "1",
+            "start_date(3i)" => "2",
+          },
+          "1" => {
+            :name => "task_2",
+            "end_date(1i)" => "2011",
+            "end_date(2i)" => "12",
+            "end_date(3i)" => "15",
+          }
+        } }
+      end
 
-  #     before(:each) do
-  #       form.fill(attributes)
-  #     end
+      before(:each) do
+        form.fill(attributes)
+      end
 
-  #     it "should return false on 'save'" do
-  #       form.save.should be_false
-  #     end
+      describe "#save" do
+        it "should return false on 'save'" do
+          form.save.should be_false
+        end
 
-  #     it "should raise error on 'save!'" do
-  #       expect{ form.save! }.to raise_error(FreeForm::FormInvalid)
-  #     end
-  #   end
+        it "does not update company model" do
+          form.save
+          company.reload.name.should_not eq("dummycorp")
+        end
 
-  #   context "with invalid, marked for destruction attributes", :failing => true do
-  #     let(:attributes) do {
-  #       :company_name => "dummycorp",
-  #       :project_name => "my_project",
-  #       "due_date(1i)" => "2014",
-  #       "due_date(2i)" => "10",
-  #       "due_date(3i)" => "30",
-  #       :tasks_attributes => {
-  #         "0" => {
-  #           :name => "task_1",
-  #           "start_date(1i)" => "2012",
-  #           "start_date(2i)" => "1",
-  #           "start_date(3i)" => "2",
-  #         },
-  #         "1" => {
-  #           :name => "task_2",
-  #           "end_date(1i)" => "2011",
-  #           "end_date(2i)" => "12",
-  #           "end_date(3i)" => "15",
-  #           :_destroy => "1"
-  #         }
-  #       } }
-  #     end
+        it "does not update project model" do
+          form.save
+          project.reload.due_date.should_not eq(Date.new(2014, 10, 30))
+        end
 
-  #     before(:each) do
-  #       form.fill(attributes)
-  #     end
+        it "does not update the first task model" do
+          form.save
+          task_1.reload.name.should_not eq("task_1")
+          task_1.reload.start_date.should_not eq(Date.new(2012, 1, 2))
+        end
 
-  #     it "should return true on 'save'" do
-  #       form.save.should be_true
-  #     end
+        it "does not update the second task model" do
+          form.save
+          task_2.reload.name.should_not eq("task_2")
+          task_2.reload.end_date.should_not eq(Date.new(2011, 12, 15))
+        end
+      end
 
-  #     it "should not raise error on 'save!'" do
-  #       expect{ form.save! }.to_not raise_error
-  #     end
-  #   end
+      describe "#save!" do
+        it "should raise error on 'save!'" do
+          expect{ form.save! }.to raise_error(FreeForm::FormInvalid)
+        end
+      end
+    end
 
-  #   context "with valid attributes" do
-  #     let(:attributes) do {
-  #       :company_name => "dummycorp",
-  #       :project_name => "railsapp",
-  #       "due_date(1i)" => "2014",
-  #       "due_date(2i)" => "10",
-  #       "due_date(3i)" => "30",
-  #       :tasks_attributes => {
-  #         "0" => {
-  #           :name => "new_task_1",
-  #           "start_date(1i)" => "2012",
-  #           "start_date(2i)" => "1",
-  #           "start_date(3i)" => "2",
-  #         },
-  #         "1" => {
-  #           :name => "new_task_2",
-  #           "start_date(1i)" => "2011",
-  #           "start_date(2i)" => "8",
-  #           "start_date(3i)" => "15",
-  #           "end_date(1i)" => "2011",
-  #           "end_date(2i)" => "12",
-  #           "end_date(3i)" => "15",
-  #         }
-  #       } }
-  #     end
+    context "with invalid, marked for destruction attributes" do
+      let(:attributes) do {
+        :company_name => "dummycorp",
+        :project_name => "my_project",
+        "due_date(1i)" => "2014",
+        "due_date(2i)" => "10",
+        "due_date(3i)" => "30",
+        :tasks_attributes => {
+          "0" => {
+            :name => "task_1",
+            "start_date(1i)" => "2012",
+            "start_date(2i)" => "1",
+            "start_date(3i)" => "2",
+          },
+          "1" => {
+            :name => nil,
+            "end_date(1i)" => "2011",
+            "end_date(2i)" => "12",
+            "end_date(3i)" => "15",
+            :_destroy => "1"
+          }
+        } }
+      end
 
-  #     before(:each) do
-  #       form.fill(attributes)
-  #     end
+      before(:each) do
+        form.fill(attributes)
+      end
 
-  #     describe "save", :save => true do
-  #       describe "without destroy" do
-  #         it "should return true on 'save', and call save on other models" do
-  #           form.company.should_receive(:save).and_return(true)
-  #           form.project.should_receive(:save).and_return(true)
-  #           form.tasks.first.task.should_receive(:save).and_return(true)
-  #           form.tasks.last.task.should_receive(:save).and_return(true)
-  #           form.save
-  #         end
+      describe "#save" do
+        it "should return true on 'save'" do
+          form.save.should be_true
+        end
 
-  #         describe "value assignment and persistence" do
-  #           before(:each) { form.save }
+        it "updates company model" do
+          form.save
+          company.reload.name.should eq("dummycorp")
+        end
 
-  #           it "assign company values" do
-  #             company.reload
-  #             company.name.should eq("dummycorp")
-  #           end
+        it "updates project model" do
+          form.save
+          project.reload.name.should eq("my_project")
+          project.reload.due_date.should eq(Date.new(2014, 10, 30))
+        end
 
-  #           it "assigns project values" do
-  #             project.reload
-  #             project.name.should eq("railsapp")
-  #             project.due_date.should eq(Date.new(2014, 10, 30))
-  #           end
+        it "updates the first task model" do
+          form.save
+          task_1.reload.name.should eq("task_1")
+          task_1.reload.start_date.should eq(Date.new(2012, 1, 2))
+        end
 
-  #           it "assigns task_1 values" do
-  #             task_1.reload
-  #             task_1.name.should eq("new_task_1")
-  #             task_1.start_date.should eq(Date.new(2012, 1, 2))
-  #             task_1.end_date.should eq(Date.new(2014, 3, 3))
-  #           end
+        it "destroys the second task model", :failing => true do
+          form.save
+          task_2.should_not exist_in_database
+        end
+      end
 
-  #           it "assigns task_1 values" do
-  #             task_2.reload
-  #             task_2.name.should eq("new_task_2")
-  #             task_2.start_date.should eq(Date.new(2011, 8, 15))
-  #             task_2.end_date.should eq(Date.new(2011, 12, 15))
-  #           end
-  #         end
-  #       end
+      describe "#save!" do
+        it "should not raise error on 'save!'" do
+          expect{ form.save! }.to_not raise_error
+        end
+      end
+    end
 
-  #       describe "with destroy" do
-  #         it "destroys models on save if set" do
-  #           form._destroy = true
-  #           form.company.should_receive(:destroy).and_return(true)
-  #           form.project.should_receive(:destroy).and_return(true)
-  #           form.tasks.first.task.should_receive(:save).and_return(true)
-  #           form.tasks.last.task.should_receive(:save).and_return(true)
-  #           form.save
-  #         end
+    context "with valid attributes" do
+      let(:attributes) do {
+        :company_name => "dummycorp",
+        :project_name => "railsapp",
+        "due_date(1i)" => "2014",
+        "due_date(2i)" => "10",
+        "due_date(3i)" => "30",
+        :tasks_attributes => {
+          "0" => {
+            :name => "new_task_1",
+            "start_date(1i)" => "2012",
+            "start_date(2i)" => "1",
+            "start_date(3i)" => "2",
+          },
+          "1" => {
+            :name => "new_task_2",
+            "start_date(1i)" => "2011",
+            "start_date(2i)" => "8",
+            "start_date(3i)" => "15",
+            "end_date(1i)" => "2011",
+            "end_date(2i)" => "12",
+            "end_date(3i)" => "15",
+          }
+        } }
+      end
 
-  #         it "destroys models on save if set through attribute" do
-  #           form.fill({:_destroy => "1"})
-  #           form.company.should_receive(:destroy).and_return(true)
-  #           form.project.should_receive(:destroy).and_return(true)
-  #           form.tasks.first.task.should_receive(:save).and_return(true)
-  #           form.tasks.last.task.should_receive(:save).and_return(true)
-  #           form.save
-  #         end
+      before(:each) do
+        form.fill(attributes)
+      end
 
-  #         describe "value assignment and persistence" do
-  #           before(:each) { form._destroy = true }
-  #           before(:each) { form.save }
+      describe "#save" do
+        it "should return true on 'save'" do
+          form.save.should be_true
+        end
 
-  #           it "destroys company" do
-  #             expect { company.reload }.to raise_error
-  #           end
+        it "updates company model" do
+          form.save
+          company.reload.name.should eq("dummycorp")
+        end
 
-  #           it "destroys project" do
-  #             expect { project.reload }.to raise_error
-  #           end
+        it "updates project model" do
+          form.save
+          project.reload.name.should eq("railsapp")
+          project.reload.due_date.should eq(Date.new(2014, 10, 30))
+        end
 
-  #           it "assigns task_1 values" do
-  #             task_1.reload
-  #             task_1.name.should eq("new_task_1")
-  #             task_1.start_date.should eq(Date.new(2012, 1, 2))
-  #             task_1.end_date.should eq(Date.new(2014, 3, 3))
-  #           end
+        it "updates the first task model" do
+          form.save
+          task_1.reload.name.should eq("new_task_1")
+          task_1.reload.start_date.should eq(Date.new(2012, 1, 2))
+        end
 
-  #           it "assigns task_1 values" do
-  #             task_2.reload
-  #             task_2.name.should eq("new_task_2")
-  #             task_2.start_date.should eq(Date.new(2011, 8, 15))
-  #             task_2.end_date.should eq(Date.new(2011, 12, 15))
-  #           end
-  #         end
-  #       end
+        it "updates the second task model" do
+          form.save
+          task_2.reload.name.should eq("new_task_2")
+          task_2.reload.start_date.should eq(Date.new(2011, 8, 15))
+          task_2.reload.end_date.should eq(Date.new(2011, 12, 15))
+        end
+      end
 
-  #       describe "with nested destroy" do
-  #         before(:each) { form.tasks.first._destroy = true }
-
-  #         it "destroys nested models on save if set" do
-  #           form.company.should_receive(:save).and_return(true)
-  #           form.project.should_receive(:save).and_return(true)
-  #           form.tasks.first.task.should_receive(:destroy).and_return(true)
-  #           form.tasks.last.task.should_receive(:save).and_return(true)
-  #           form.save
-  #         end
-
-  #         describe "value assignment and persistence" do
-  #           before(:each) { form.save }
-
-  #           it "assign company values" do
-  #             company.reload
-  #             company.name.should eq("dummycorp")
-  #           end
-
-  #           it "assigns project values" do
-  #             project.reload
-  #             project.name.should eq("railsapp")
-  #             project.due_date.should eq(Date.new(2014, 10, 30))
-  #           end
-
-  #           it "destroys task_1" do
-  #             expect { task_1.reload }.to raise_error
-  #           end
-
-  #           it "assigns task_1 values" do
-  #             task_2.reload
-  #             task_2.name.should eq("new_task_2")
-  #             task_2.start_date.should eq(Date.new(2011, 8, 15))
-  #             task_2.end_date.should eq(Date.new(2011, 12, 15))
-  #           end
-  #         end
-  #       end
-  #     end
-
-  #     describe "save!", :save! => true do
-  #       describe "without destroy" do
-  #         it "should return true on 'save!', and call save! on other models" do
-  #           form.company.should_receive(:save!).and_return(true)
-  #           form.project.should_receive(:save!).and_return(true)
-  #           form.tasks.first.task.should_receive(:save!).and_return(true)
-  #           form.tasks.last.task.should_receive(:save!).and_return(true)
-  #           form.save!
-  #         end
-
-  #         describe "value assignment and persistence" do
-  #           before(:each) { form.save! }
-
-  #           it "assign company values" do
-  #             company.reload
-  #             company.name.should eq("dummycorp")
-  #           end
-
-  #           it "assigns project values" do
-  #             project.reload
-  #             project.name.should eq("railsapp")
-  #             project.due_date.should eq(Date.new(2014, 10, 30))
-  #           end
-
-  #           it "assigns task_1 values" do
-  #             task_1.reload
-  #             task_1.name.should eq("new_task_1")
-  #             task_1.start_date.should eq(Date.new(2012, 1, 2))
-  #             task_1.end_date.should eq(Date.new(2014, 3, 3))
-  #           end
-
-  #           it "assigns task_1 values" do
-  #             task_2.reload
-  #             task_2.name.should eq("new_task_2")
-  #             task_2.start_date.should eq(Date.new(2011, 8, 15))
-  #             task_2.end_date.should eq(Date.new(2011, 12, 15))
-  #           end
-  #         end
-  #       end
-
-  #       describe "with destroy" do
-  #         it "destroys models on save! if set" do
-  #           form._destroy = true
-  #           form.company.should_receive(:destroy).and_return(true)
-  #           form.project.should_receive(:destroy).and_return(true)
-  #           form.tasks.first.task.should_receive(:save!).and_return(true)
-  #           form.tasks.last.task.should_receive(:save!).and_return(true)
-  #           form.save!
-  #         end
-
-  #         it "destroys models on save! if set" do
-  #           form.fill({:_destroy => "1"})
-  #           form.company.should_receive(:destroy).and_return(true)
-  #           form.project.should_receive(:destroy).and_return(true)
-  #           form.tasks.first.task.should_receive(:save!).and_return(true)
-  #           form.tasks.last.task.should_receive(:save!).and_return(true)
-  #           form.save!
-  #         end
-
-  #         describe "value assignment and persistence" do
-  #           before(:each) { form._destroy = true }
-  #           before(:each) { form.save! }
-
-  #           it "destroys company" do
-  #             expect { company.reload }.to raise_error
-  #           end
-
-  #           it "destroys project" do
-  #             expect { project.reload }.to raise_error
-  #           end
-
-  #           it "assigns task_1 values" do
-  #             task_1.reload
-  #             task_1.name.should eq("new_task_1")
-  #             task_1.start_date.should eq(Date.new(2012, 1, 2))
-  #             task_1.end_date.should eq(Date.new(2014, 3, 3))
-  #           end
-
-  #           it "assigns task_1 values" do
-  #             task_2.reload
-  #             task_2.name.should eq("new_task_2")
-  #             task_2.start_date.should eq(Date.new(2011, 8, 15))
-  #             task_2.end_date.should eq(Date.new(2011, 12, 15))
-  #           end
-  #         end
-  #       end
-
-  #       describe "with nested destroy" do
-  #         it "destroys nested models on save! if set" do
-  #           form.tasks.last._destroy = true
-  #           form.company.should_receive(:save!).and_return(true)
-  #           form.project.should_receive(:save!).and_return(true)
-  #           form.tasks.first.task.should_receive(:save!).and_return(true)
-  #           form.tasks.last.task.should_receive(:destroy).and_return(true)
-  #           form.save!
-  #         end
-
-  #         describe "value assignment and persistence" do
-  #           before(:each) { form.tasks.first._destroy = true }
-  #           before(:each) { form.save! }
-
-  #           it "assign company values" do
-  #             company.reload
-  #             company.name.should eq("dummycorp")
-  #           end
-
-  #           it "assigns project values" do
-  #             project.reload
-  #             project.name.should eq("railsapp")
-  #             project.due_date.should eq(Date.new(2014, 10, 30))
-  #           end
-
-  #           it "destroys task_1" do
-  #             expect { task_1.reload }.to raise_error
-  #           end
-
-  #           it "assigns task_1 values" do
-  #             task_2.reload
-  #             task_2.name.should eq("new_task_2")
-  #             task_2.start_date.should eq(Date.new(2011, 8, 15))
-  #             task_2.end_date.should eq(Date.new(2011, 12, 15))
-  #           end
-  #         end
-  #       end
-  #     end
-  #   end
-  # end
+      describe "#save!" do
+        it "should not raise error on 'save!'" do
+          expect{ form.save! }.to_not raise_error
+        end
+      end
+    end
+  end
 end

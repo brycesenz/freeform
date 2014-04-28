@@ -55,7 +55,7 @@ describe FreeForm::Form do
     end
   end
 
-  describe "saving and destroying", :saving => true do
+  describe "saving", :saving => true do
     context "with invalid attributes on primary form" do
       let(:attributes) do {
         :name => nil,
@@ -90,7 +90,7 @@ describe FreeForm::Form do
 
         it "should not persist task" do
           form.save
-          task.should_not be_persisted
+          task.should_not exist_in_database
         end
 
         it "should not save any Milestone objects" do
@@ -140,7 +140,7 @@ describe FreeForm::Form do
 
         it "should not persist task" do
           form.save
-          task.should_not be_persisted
+          task.should_not exist_in_database
         end
 
         it "should not save any Milestone objects" do
@@ -191,7 +191,7 @@ describe FreeForm::Form do
 
         it "should persist task" do
           form.save
-          task.should be_persisted
+          task.should exist_in_database
         end
 
         it "should save one Milestone object" do
@@ -244,7 +244,7 @@ describe FreeForm::Form do
 
         it "should persist task" do
           form.save
-          task.should be_persisted
+          task.should exist_in_database
         end
 
         it "should save three Milestone objects" do
@@ -257,6 +257,47 @@ describe FreeForm::Form do
         it "should not raise error on 'save!'" do
           expect{ form.save! }.to_not raise_error
         end
+      end
+    end
+  end
+
+  describe "destroying", :destroying => true do
+    context "without nested forms" do
+      let(:task) { Task.create!(:project => project, :name => "mytask", :start_date => Date.new(2011, 1, 1), :end_date => Date.new(2012, 1, 1)) }
+
+      let(:form) do
+        form_class.new( :task => task )
+      end
+
+      it "destroys all models in form" do
+        form.destroy
+        task.should_not exist_in_database
+      end
+    end
+
+    context "with nested forms" do
+      let(:task) { Task.create!(:project => project, :name => "mytask", :start_date => Date.new(2011, 1, 1), :end_date => Date.new(2012, 1, 1)) }
+      let(:milestone) do
+        task.milestones.build do |m|
+          m.name = "dummy_milestone"
+          m.save!
+        end
+      end 
+
+      let(:form) do
+        form_class.new( :task => task ).tap do |f|
+          f.build_milestone(:milestone => milestone)
+        end
+      end
+
+      it "destroys all models in form" do
+        form.destroy
+        task.should_not exist_in_database
+      end
+
+      it "destroys all nested models" do
+        form.destroy
+        milestone.should_not exist_in_database
       end
     end
   end
