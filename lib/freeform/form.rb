@@ -37,8 +37,10 @@ module FreeForm
 
     def save
       if valid?
+        before_save
         models.each { |m| m.destroy if m.marked_for_destruction? }
         models.each { |m| m.save unless m.marked_for_destruction? }
+        after_save
         true
       else
         false
@@ -59,6 +61,12 @@ module FreeForm
 
     def marked_for_destruction?
       respond_to?(:_destroy) ? _destroy : false
+    end
+
+    def before_save
+    end
+
+    def after_save
     end
 
   private

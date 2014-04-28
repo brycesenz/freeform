@@ -57,14 +57,28 @@ module FreeForm
     def assign_params(params)
       self.tap do |s|
         FreeForm::DateParamsFilter.new.call(params)
+        before_assign_params(params)
         params.each_pair do |attribute, value|
           assign_attribute(attribute, value)
         end
+        after_assign_params(params)
       end
     end
     alias_method :assign_attributes, :assign_params
     alias_method :populate, :assign_params
     alias_method :fill, :assign_params
+
+    def before_assign_params(params)
+    end
+    alias_method :before_assign_attributes, :before_assign_params
+    alias_method :before_populate, :before_assign_params
+    alias_method :before_fill, :before_assign_params
+
+    def after_assign_params(params)
+    end
+    alias_method :after_assign_attributes, :after_assign_params
+    alias_method :after_populate, :after_assign_params
+    alias_method :after_fill, :after_assign_params
 
     def model_property_mappings
       self.class.property_mappings
