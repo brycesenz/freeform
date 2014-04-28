@@ -39,6 +39,7 @@ module FreeForm
       if valid?
         before_save
         persist_models
+        reload_models
         after_save
         true
       else
@@ -79,6 +80,15 @@ module FreeForm
       models.each { |m| m.destroy if m.marked_for_destruction? }
       # We skip validation for underlying models, since we've already run our validation.
       models.each { |m| m.save(:validate => false) unless m.marked_for_destruction? }
+    end
+
+    #TODO: Come up with a test that can validate this behavior
+    def reload_models
+      models.each do |m| 
+        unless m.marked_for_destruction?
+          m.reload if m.respond_to?(:reload)
+        end
+      end
     end
   end
 end
