@@ -4,4 +4,5 @@ class Task < ActiveRecord::Base
   
   validates :project, :presence => true
   validates :start_date, :presence => true
+  validates_associated :milestones
 end

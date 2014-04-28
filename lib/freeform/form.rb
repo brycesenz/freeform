@@ -35,7 +35,7 @@ module FreeForm
       initialize_child_models
     end
 
-    def save
+    def save(*args)
       if valid?
         before_save
         persist_models
@@ -46,7 +46,7 @@ module FreeForm
       end
     end
 
-    def save!
+    def save!(*args)
       if valid?
         save
       else
@@ -77,7 +77,8 @@ module FreeForm
 
     def persist_models
       models.each { |m| m.destroy if m.marked_for_destruction? }
-      models.each { |m| m.save unless m.marked_for_destruction? }
+      # We skip validation for underlying models, since we've already run our validation.
+      models.each { |m| m.save(:validate => false) unless m.marked_for_destruction? }
     end
   end
 end
