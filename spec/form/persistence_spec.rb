@@ -185,7 +185,7 @@ describe FreeForm::Form do
       end
 
       describe "#save" do
-        it "should return true on 'save'", :failing => true do
+        it "should return true on 'save'" do
           form.save.should be_true
         end
 
@@ -256,6 +256,212 @@ describe FreeForm::Form do
       describe "#save!" do
         it "should not raise error on 'save!'" do
           expect{ form.save! }.to_not raise_error
+        end
+      end
+    end
+  end
+
+  describe "before and after save hooks", :hooks => true do
+    describe "before save", :before_save => true do
+      let(:form_class) do
+        klass = Class.new(FreeForm::Form) do
+          form_input_key :task
+          form_models :task
+          validate_models
+          allow_destroy_on_save
+
+          property :name,        :on => :task
+          property :start_date,  :on => :task
+          property :end_date,    :on => :task
+          validates :name, :presence => true
+
+          has_many :milestones do
+            form_input_key :milestone
+            form_model :milestone
+            validate_models
+            allow_destroy_on_save
+
+            property :name,          :on => :milestone
+          end
+
+          def milestone_initializer
+            { :milestone => task.milestones.build }
+          end
+
+          def before_save
+            task.project.update_attribute(:name, "DummyProject")
+          end
+        end
+        # This wrapper just avoids CONST warnings
+        v, $VERBOSE = $VERBOSE, nil
+          Module.const_set("AcceptanceForm", klass)
+        $VERBOSE = v
+        klass
+      end
+
+      let(:company) { Company.create!(:name => "Demo Corporation") }
+      let(:project) { Project.create!(:owner => company, :name => "Widget", :due_date => Date.new(2014, 1, 1)) }
+      let(:task)  { Task.new(:project => project) }
+
+      let(:form) do
+        form_class.new( :task => task ).tap do |f|
+          f.build_milestone
+        end
+      end
+
+      context "with invalid attributes" do
+        let(:attributes) do {
+          :name => nil,
+          "start_date(1i)" => "2012",
+          "start_date(2i)" => "1",
+          "start_date(3i)" => "2",
+          "end_date(1i)" => "2011",
+          "end_date(2i)" => "12",
+          "end_date(3i)" => "15",
+          :milestones_attributes => {
+            "0" => {
+              :name => "milestone_1",
+            },
+            "1310201" => {
+              :name => "milestone_2",
+            }
+          } }
+        end
+
+        before(:each) { form.fill(attributes) }
+
+        it "does not run before_save on save" do
+          form.save
+          project.reload.name.should_not eq("DummyProject")
+        end
+      end
+
+      context "with valid attributes" do
+        let(:attributes) do {
+          :name => "taskname",
+          "start_date(1i)" => "2012",
+          "start_date(2i)" => "1",
+          "start_date(3i)" => "2",
+          "end_date(1i)" => "2011",
+          "end_date(2i)" => "12",
+          "end_date(3i)" => "15",
+          :milestones_attributes => {
+            "0" => {
+              :name => "milestone_1",
+            },
+            "1310201" => {
+              :name => "milestone_2",
+            }
+          } }
+        end
+
+        before(:each) { form.fill(attributes) }
+
+        it "runs before_save on save" do
+          form.save
+          project.reload.name.should eq("DummyProject")
+        end
+      end
+    end
+
+    describe "after save", :after_save => true do
+      let(:form_class) do
+        klass = Class.new(FreeForm::Form) do
+          form_input_key :task
+          form_models :task
+          validate_models
+          allow_destroy_on_save
+
+          property :name,        :on => :task
+          property :start_date,  :on => :task
+          property :end_date,    :on => :task
+          validates :name, :presence => true
+
+          has_many :milestones do
+            form_input_key :milestone
+            form_model :milestone
+            validate_models
+            allow_destroy_on_save
+
+            property :name,          :on => :milestone
+          end
+
+          def milestone_initializer
+            { :milestone => task.milestones.build }
+          end
+
+          def after_save
+            task.project.update_attribute(:name, "DummyProject")
+          end
+        end
+        # This wrapper just avoids CONST warnings
+        v, $VERBOSE = $VERBOSE, nil
+          Module.const_set("AcceptanceForm", klass)
+        $VERBOSE = v
+        klass
+      end
+
+      let(:company) { Company.create!(:name => "Demo Corporation") }
+      let(:project) { Project.create!(:owner => company, :name => "Widget", :due_date => Date.new(2014, 1, 1)) }
+      let(:task)  { Task.new(:project => project) }
+
+      let(:form) do
+        form_class.new( :task => task ).tap do |f|
+          f.build_milestone
+        end
+      end
+
+      context "with invalid attributes" do
+        let(:attributes) do {
+          :name => nil,
+          "start_date(1i)" => "2012",
+          "start_date(2i)" => "1",
+          "start_date(3i)" => "2",
+          "end_date(1i)" => "2011",
+          "end_date(2i)" => "12",
+          "end_date(3i)" => "15",
+          :milestones_attributes => {
+            "0" => {
+              :name => "milestone_1",
+            },
+            "1310201" => {
+              :name => "milestone_2",
+            }
+          } }
+        end
+
+        before(:each) { form.fill(attributes) }
+
+        it "does not run after_save on save" do
+          form.save
+          project.reload.name.should_not eq("DummyProject")
+        end
+      end
+
+      context "with valid attributes" do
+        let(:attributes) do {
+          :name => "taskname",
+          "start_date(1i)" => "2012",
+          "start_date(2i)" => "1",
+          "start_date(3i)" => "2",
+          "end_date(1i)" => "2011",
+          "end_date(2i)" => "12",
+          "end_date(3i)" => "15",
+          :milestones_attributes => {
+            "0" => {
+              :name => "milestone_1",
+            },
+            "1310201" => {
+              :name => "milestone_2",
+            }
+          } }
+        end
+
+        before(:each) { form.fill(attributes) }
+
+        it "runs after_save on save" do
+          form.save
+          project.reload.name.should eq("DummyProject")
         end
       end
     end

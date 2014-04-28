@@ -179,13 +179,97 @@ describe FreeForm::Property do
       end
 
       it "handles individiual date components" do
-        #TODO: should pass with symbols too!!
         form.assign_attributes({  
           "attribute_1(3i)" => 5, 
           "attribute_1(2i)" => 6, 
           "attribute_1(1i)" => 2013 })
  
         form.attribute_1.should eq(Date.new(2013, 6, 5))
+      end
+    end
+
+    describe "before_assign_params", :before_assign_params => true do
+      let(:form_class) do
+        Class.new(Module) do
+          include FreeForm::Model
+          include FreeForm::Property
+          declared_model :first_model
+          declared_model :second_model
+          
+          property :attribute_1, :on => :first_model
+          property :attribute_2, :on => :first_model, :ignore_blank => true
+          property :attribute_3, :on => :second_model, :ignore_blank => true
+          property :attribute_4, :on => :second_model
+  
+          def initialize(h)
+            h.each {|k,v| send("#{k}=",v)}
+          end
+
+          def before_assign_params(params)
+            params.delete("attribute_1")
+          end
+        end
+      end
+  
+      let(:form) do
+        form_class.new(
+          :first_model  => OpenStruct.new(:attribute_1 => "first", :attribute_2 => "second"),
+          :second_model => OpenStruct.new(:attribute_3 => "third", :attribute_4 => "fourth"),
+        )
+      end
+      
+      it "deletes attribute_1 from params" do
+        form.assign_attributes({ 
+          :attribute_1 => "changed", :attribute_2 => 182.34, 
+          :attribute_3 => 45, :attribute_4 => Date.new(2013, 10, 10) })
+ 
+        form.attribute_1.should_not eq("changed")
+        form.attribute_2.should eq(182.34)
+        form.attribute_3.should eq(45)
+        form.attribute_4.should eq(Date.new(2013, 10, 10))
+      end
+    end
+
+    describe "after_assign_params", :after_assign_params => true do
+      let(:form_class) do
+        Class.new(Module) do
+          include FreeForm::Model
+          include FreeForm::Property
+          declared_model :first_model
+          declared_model :second_model
+          
+          property :attribute_1, :on => :first_model
+          property :attribute_2, :on => :first_model, :ignore_blank => true
+          property :attribute_3, :on => :second_model, :ignore_blank => true
+          property :attribute_4, :on => :second_model
+  
+          def initialize(h)
+            h.each {|k,v| send("#{k}=",v)}
+          end
+
+          def after_assign_params(params)
+            params.delete("attribute_1")
+            assign_attribute("attribute_3", "overwritten")
+          end
+        end
+      end
+  
+      let(:form) do
+        form_class.new(
+          :first_model  => OpenStruct.new(:attribute_1 => "first", :attribute_2 => "second"),
+          :second_model => OpenStruct.new(:attribute_3 => "third", :attribute_4 => "fourth"),
+        )
+      end
+      
+      it "deletes attribute_1 from params" do
+        form.assign_attributes({ 
+          :attribute_1 => "changed", :attribute_2 => 182.34, 
+          :attribute_3 => 45, :attribute_4 => Date.new(2013, 10, 10) })
+ 
+        form.attribute_1.should eq("changed")
+        form.attribute_2.should eq(182.34)
+        form.attribute_3.should eq("overwritten")
+        form.attribute_4.should eq(Date.new(2013, 10, 10))
       end
     end
 

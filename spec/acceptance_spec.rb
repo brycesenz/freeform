@@ -390,7 +390,7 @@ describe FreeForm::Form do
           task_1.reload.start_date.should eq(Date.new(2012, 1, 2))
         end
 
-        it "destroys the second task model", :failing => true do
+        it "destroys the second task model" do
           form.save
           task_2.should_not exist_in_database
         end

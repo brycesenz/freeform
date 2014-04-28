@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    freeform (2.0.0)
+    freeform (2.0.1)
       activemodel
       formtastic
       rails (>= 3.2.0)

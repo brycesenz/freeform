@@ -160,7 +160,7 @@ describe FreeForm::Validation do
       form.errors[:form_property].should eq(["can't be blank"])
     end
 
-    it "has error on address street", :failing => true do
+    it "has error on address street" do
       form.valid?
       form.addresses.first.errors[:street].should eq(["can't be blank"])
     end
