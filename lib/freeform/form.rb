@@ -38,8 +38,7 @@ module FreeForm
     def save
       if valid?
         before_save
-        models.each { |m| m.destroy if m.marked_for_destruction? }
-        models.each { |m| m.save unless m.marked_for_destruction? }
+        persist_models
         after_save
         true
       else
@@ -74,6 +73,11 @@ module FreeForm
       self.class.child_models.each do |c|
         send("initialize_#{c}")
       end
+    end
+
+    def persist_models
+      models.each { |m| m.destroy if m.marked_for_destruction? }
+      models.each { |m| m.save unless m.marked_for_destruction? }
     end
   end
 end
