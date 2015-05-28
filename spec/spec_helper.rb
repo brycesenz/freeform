@@ -23,6 +23,7 @@ Capybara.javascript_driver = :poltergeist
 
 RSpec.configure do |config|
   config.mock_with :rspec
+  config.infer_spec_type_from_file_location!
 end
 
 RSpec::Matchers.define :exist_in_database do

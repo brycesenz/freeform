@@ -43,7 +43,7 @@ describe 'JavaScript Behavior', :js => true do
         it 'emits remove event for current association' do
           visit url
           2.times { click_link 'Add new task' }
-          click_link 'Remove'
+          click_link 'Remove', match: :first
 
           page.should have_content 'Removed task field'
           page.should_not have_content 'Removed milestone field'
