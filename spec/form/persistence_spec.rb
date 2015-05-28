@@ -85,7 +85,7 @@ describe FreeForm::Form do
 
       describe "#save" do
         it "should return false on 'save'" do
-          form.save.should be_false
+          form.save.should be_falsey
         end
 
         it "should not persist task" do
@@ -135,7 +135,7 @@ describe FreeForm::Form do
 
       describe "#save" do
         it "should return false on 'save'" do
-          form.save.should be_false
+          form.save.should be_falsey
         end
 
         it "should not persist task" do
@@ -186,7 +186,7 @@ describe FreeForm::Form do
 
       describe "#save" do
         it "should return true on 'save'" do
-          form.save.should be_true
+          form.save.should be_truthy
         end
 
         it "should persist task" do
@@ -239,7 +239,7 @@ describe FreeForm::Form do
 
       describe "#save" do
         it "should return true on 'save'" do
-          form.save.should be_true
+          form.save.should be_truthy
         end
 
         it "should persist task" do

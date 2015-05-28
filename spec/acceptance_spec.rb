@@ -307,7 +307,7 @@ describe FreeForm::Form do
 
       describe "#save" do
         it "should return false on 'save'" do
-          form.save.should be_false
+          form.save.should be_falsey
         end
 
         it "does not update company model" do
@@ -370,7 +370,7 @@ describe FreeForm::Form do
 
       describe "#save" do
         it "should return true on 'save'" do
-          form.save.should be_true
+          form.save.should be_truthy
         end
 
         it "updates company model" do
@@ -435,7 +435,7 @@ describe FreeForm::Form do
 
       describe "#save" do
         it "should return true on 'save'" do
-          form.save.should be_true
+          form.save.should be_truthy
         end
 
         it "updates company model" do

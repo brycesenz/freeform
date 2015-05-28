@@ -88,42 +88,42 @@ describe FreeForm::Property do
         end
 
         it "has destroy as false by default" do
-          form._destroy.should be_false
+          form._destroy.should be_falsey
         end
 
         it "has marked_for_destruction? as false by default" do
-          form.marked_for_destruction?.should be_false
+          form.marked_for_destruction?.should be_falsey
         end
         
         it "can be marked for destruction" do
-          form.marked_for_destruction?.should be_false
+          form.marked_for_destruction?.should be_falsey
           form.mark_for_destruction
-          form.marked_for_destruction?.should be_true          
+          form.marked_for_destruction?.should be_truthy          
         end
         
         it "interprets '0' is not marked for destruction" do
           form.fill({:_destroy => "0"})
-          form.marked_for_destruction?.should be_false
+          form.marked_for_destruction?.should be_falsey
         end
 
         it "interprets 'false' is not marked for destruction" do
           form.fill({:_destroy => "false"})
-          form.marked_for_destruction?.should be_false
+          form.marked_for_destruction?.should be_falsey
         end
 
         it "interprets '1' is marked for destruction" do
           form.fill({:_destroy => "1"})
-          form.marked_for_destruction?.should be_true
+          form.marked_for_destruction?.should be_truthy
         end
 
         it "interprets 'true' is marked for destruction" do
           form.fill({:_destroy => "true"})
-          form.marked_for_destruction?.should be_true
+          form.marked_for_destruction?.should be_truthy
         end
 
         it "interprets '2' is marked for destruction" do
           form.fill({:_destroy => "2"})
-          form.marked_for_destruction?.should be_true
+          form.marked_for_destruction?.should be_truthy
         end
       end
     end
