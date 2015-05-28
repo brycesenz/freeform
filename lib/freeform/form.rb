@@ -10,7 +10,6 @@ require 'freeform/form/validation'
 module FreeForm
   class FormInvalid < StandardError; end
   class Form
-    extend Forwardable
     extend ActiveModel::Naming
     extend ActiveModel::Callbacks
     include ActiveModel::Conversion
