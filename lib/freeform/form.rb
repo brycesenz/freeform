@@ -1,4 +1,3 @@
-require 'forwardable'
 require 'ostruct'
 require 'active_model'
 require 'freeform/form/form_input_key'
