@@ -11,6 +11,7 @@ require 'active_model'
 require 'rails/all'
 require 'rspec/rails'
 require 'capybara/rspec'
+require 'capybara/poltergeist'
 
 spec = Gem::Specification.find_by_name("freeform")
 gem_root = spec.gem_dir
@@ -18,7 +19,8 @@ Dir[("#{gem_root}/spec/support/**/*.rb")].each {|f| require f}
 
 Rails.backtrace_cleaner.remove_silencers!
 
-Capybara.javascript_driver = :selenium
+Capybara.javascript_driver = :poltergeist
+
 RSpec.configure do |config|
   config.mock_with :rspec
 end
