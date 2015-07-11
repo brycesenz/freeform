@@ -7,8 +7,6 @@ module FreeForm
     end
 
     module ClassMethods
-      include Forwardable
-
       def property_mappings
         # Take the form of {:property => {:model => model, :field => field, :ignore_blank => false}}
         @property_mappings ||= Hash.new

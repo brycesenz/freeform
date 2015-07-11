@@ -1,4 +1,3 @@
-require 'forwardable'
 require 'ostruct'
 require 'active_model'
 require 'freeform/form/form_input_key'
@@ -10,7 +9,6 @@ require 'freeform/form/validation'
 module FreeForm
   class FormInvalid < StandardError; end
   class Form
-    extend Forwardable
     extend ActiveModel::Naming
     extend ActiveModel::Callbacks
     include ActiveModel::Conversion

@@ -7,8 +7,6 @@ module FreeForm
     end
 
     module ClassMethods
-      include Forwardable
-
       def models
         @models ||= []
       end
